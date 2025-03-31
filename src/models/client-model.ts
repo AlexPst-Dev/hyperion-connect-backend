@@ -1,18 +1,24 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from './user-model';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
+import { User } from "./users-model";
 
-@Entity('client')
+@Entity("client")
 export class Client {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.id)
-  @JoinColumn({ name: 'professional_id' })
+  @ManyToOne(() => User, (user) => user.id)
+  @JoinColumn({ name: "professional_id" })
   user: User;
 
-  @Column({ name: 'professional_id' })
+  @Column({ name: "professional_id" })
   professionalId: number;
 
-  @Column({ name: 'list_of_client_ids', nullable: true })
+  @Column({ name: "list_of_client_ids", nullable: true })
   listOfClientIds: string;
 }

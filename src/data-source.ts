@@ -8,7 +8,7 @@ import {
   FreeUser,
   Partner,
   Admin,
-} from "./models/user-model";
+} from "./models/users-model";
 import { Contact } from "./models/contact-model";
 import { Client } from "./models/client-model";
 import { Sessions } from "./models/sessions-model";
@@ -16,7 +16,7 @@ import { Exercises } from "./models/exercices-model";
 import { Events } from "./models/events-model";
 import { Objectives } from "./models/objectives-model";
 import { Billings } from "./models/billings-model";
-import { CreateUserMigration1698734800000 } from "./migrations/user-migration";
+import { CreateUserMigration1698734800000 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
 import { CreateSessionsTable1698734800002 } from "./migrations/sessions-migration";

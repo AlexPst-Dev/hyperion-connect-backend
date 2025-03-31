@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { User } from "./user-model";
+import { User } from "./users-model";
 
 @Entity("objectives")
 export class Objectives {
