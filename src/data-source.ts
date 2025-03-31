@@ -13,10 +13,16 @@ import { Contact } from "./models/contact-model";
 import { Client } from "./models/client-model";
 import { Sessions } from "./models/sessions-model";
 import { Exercises } from "./models/exercices-model";
-import { Events } from "./models/events-model";
+import {
+  Events,
+  HyperlinkEvent,
+  CoachingEvent,
+  SportingActivityEvent,
+} from "./models/events-model";
 import { Objectives } from "./models/objectives-model";
 import { Billings } from "./models/billings-model";
 import { Companies } from "./models/companies-model";
+import { Offers, DiscountOffer, SponsorshipOffer } from "./models/offers-model";
 import { CreateUserMigration1698734800000 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
@@ -26,6 +32,7 @@ import { CreateEventsTable1698734800004 } from "./migrations/events-migration";
 import { CreateObjectivesTable1698734800006 } from "./migrations/objectives-migration";
 import { CreateBillingsTable1698734800006 } from "./migrations/billings-migration";
 import { CreateCompaniesTable1698734800007 } from "./migrations/companies-migration";
+import { CreateOffersTable1698734800008 } from "./migrations/offers-migration";
 import * as dotenv from "dotenv";
 
 dotenv.config(); // Charge les variables d'environnement
@@ -53,9 +60,15 @@ export const AppDataSource = new DataSource({
     Sessions,
     Exercises,
     Events,
-    Objectives,
+    HyperlinkEvent,
+    CoachingEvent,
+    SportingActivityEvent,
+    Offers,
+    DiscountOffer,
+    SponsorshipOffer,
     Billings,
     Companies,
+    Objectives,
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -67,6 +80,7 @@ export const AppDataSource = new DataSource({
     CreateObjectivesTable1698734800006,
     CreateBillingsTable1698734800006,
     CreateCompaniesTable1698734800007,
+    CreateOffersTable1698734800008,
   ],
   subscribers: [],
 });
