@@ -14,12 +14,14 @@ import { Client } from "./models/client-model";
 import { Sessions } from "./models/sessions-model";
 import { Exercises } from "./models/exercices-model";
 import { Events } from "./models/events-model";
+import { Objectives } from "./models/objectives-model";
 import { CreateUserMigration1698734800000 } from "./migrations/user-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
 import { CreateSessionsTable1698734800002 } from "./migrations/sessions-migration";
 import { CreateExercisesTable1698734800003 } from "./migrations/exercices-migration";
 import { CreateEventsTable1698734800004 } from "./migrations/events-migration";
+import { CreateObjectivesTable1698734800006 } from "./migrations/objectives-migration";
 import * as dotenv from "dotenv";
 
 dotenv.config(); // Charge les variables d'environnement
@@ -47,6 +49,7 @@ export const AppDataSource = new DataSource({
     Sessions,
     Exercises,
     Events,
+    Objectives,
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -55,6 +58,7 @@ export const AppDataSource = new DataSource({
     CreateSessionsTable1698734800002,
     CreateExercisesTable1698734800003,
     CreateEventsTable1698734800004,
+    CreateObjectivesTable1698734800006,
   ],
   subscribers: [],
 });
