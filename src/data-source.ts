@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
+
 import {
   User,
   Sportsman,
@@ -27,6 +28,7 @@ import { Graphs } from "./models/graphs-model";
 import { Files } from "./models/files-model";
 import { Notifications } from "./models/notifications-model";
 import { Categories } from "./models/categories-model";
+import { Subscriptions } from "./models/subscription-model";
 
 import { CreateUserMigration1698734800000 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
@@ -42,6 +44,7 @@ import { CreateGraphTable1698734800009 } from "./migrations/graphs-migration";
 import { CreateFilesTable1698734800010 } from "./migrations/files-migration";
 import { CreateNotificationsTable1698734800011 } from "./migrations/notifications-migration";
 import { CreateCategoriesTable1698734800012 } from "./migrations/categories-migration";
+import { CreateSubscriptionsTable1698734800013 } from "./migrations/subscription-migration";
 
 import * as dotenv from "dotenv";
 
@@ -83,6 +86,7 @@ export const AppDataSource = new DataSource({
     Files,
     Notifications,
     Categories,
+    Subscriptions,
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -99,6 +103,7 @@ export const AppDataSource = new DataSource({
     CreateFilesTable1698734800010,
     CreateNotificationsTable1698734800011,
     CreateCategoriesTable1698734800012,
+    CreateSubscriptionsTable1698734800013,
   ],
   subscribers: [],
 });
