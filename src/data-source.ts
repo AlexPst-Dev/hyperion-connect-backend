@@ -23,6 +23,7 @@ import { Objectives } from "./models/objectives-model";
 import { Billings } from "./models/billings-model";
 import { Companies } from "./models/companies-model";
 import { Offers, DiscountOffer, SponsorshipOffer } from "./models/offers-model";
+import { Graphs } from "./models/graphs-model";
 import { CreateUserMigration1698734800000 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
@@ -33,6 +34,8 @@ import { CreateObjectivesTable1698734800006 } from "./migrations/objectives-migr
 import { CreateBillingsTable1698734800006 } from "./migrations/billings-migration";
 import { CreateCompaniesTable1698734800007 } from "./migrations/companies-migration";
 import { CreateOffersTable1698734800008 } from "./migrations/offers-migration";
+import { CreateGraphTable1698734800009 } from "./migrations/graphs-migration";
+
 import * as dotenv from "dotenv";
 
 dotenv.config(); // Charge les variables d'environnement
@@ -69,6 +72,7 @@ export const AppDataSource = new DataSource({
     Billings,
     Companies,
     Objectives,
+    Graphs,
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -81,6 +85,7 @@ export const AppDataSource = new DataSource({
     CreateBillingsTable1698734800006,
     CreateCompaniesTable1698734800007,
     CreateOffersTable1698734800008,
+    CreateGraphTable1698734800009,
   ],
   subscribers: [],
 });
