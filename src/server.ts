@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
-import { Sequelize } from 'sequelize';
+import { Dialect, Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.DB_PORT || 3000;
+const PORT = 3000;
 
 // Database connection
 const sequelize = new Sequelize(
@@ -14,7 +14,8 @@ const sequelize = new Sequelize(
   process.env.DB_PASS, 
   {
     host: process.env.DB_HOST,
-    dialect: 'mysql'
+    dialect: process.env.DB_DIALECT as Dialect,
+    port: Number(process.env.DB_PORT),
   }
 );
 
