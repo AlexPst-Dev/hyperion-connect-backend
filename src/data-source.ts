@@ -26,6 +26,8 @@ import { Offers, DiscountOffer, SponsorshipOffer } from "./models/offers-model";
 import { Graphs } from "./models/graphs-model";
 import { Files } from "./models/files-model";
 import { Notifications } from "./models/notifications-model";
+import { Categories } from "./models/categories-model";
+
 import { CreateUserMigration1698734800000 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
@@ -39,6 +41,7 @@ import { CreateOffersTable1698734800008 } from "./migrations/offers-migration";
 import { CreateGraphTable1698734800009 } from "./migrations/graphs-migration";
 import { CreateFilesTable1698734800010 } from "./migrations/files-migration";
 import { CreateNotificationsTable1698734800011 } from "./migrations/notifications-migration";
+import { CreateCategoriesTable1698734800012 } from "./migrations/categories-migration";
 
 import * as dotenv from "dotenv";
 
@@ -79,6 +82,7 @@ export const AppDataSource = new DataSource({
     Graphs,
     Files,
     Notifications,
+    Categories,
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -94,6 +98,7 @@ export const AppDataSource = new DataSource({
     CreateGraphTable1698734800009,
     CreateFilesTable1698734800010,
     CreateNotificationsTable1698734800011,
+    CreateCategoriesTable1698734800012,
   ],
   subscribers: [],
 });
