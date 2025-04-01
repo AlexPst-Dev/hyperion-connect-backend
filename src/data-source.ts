@@ -37,7 +37,7 @@ import { CreateSessionsTable1698734800002 } from "./migrations/sessions-migratio
 import { CreateExercisesTable1698734800003 } from "./migrations/exercices-migration";
 import { CreateEventsTable1698734800006 } from "./migrations/events-migration";
 import { CreateObjectivesTable1698734800006 } from "./migrations/objectives-migration";
-import { CreateBillingsTable1698734800006 } from "./migrations/billings-migration";
+import { UpdateBillingsTable1698734800014 } from "./migrations/billings-migration";
 import { CreateCompanyTable1698734800007 } from "./migrations/companies-migration";
 import { CreateOffersTable1698734800008 } from "./migrations/offers-migration";
 import { CreateGraphTable1698734800009 } from "./migrations/graphs-migration";
@@ -96,7 +96,7 @@ export const AppDataSource = new DataSource({
     CreateExercisesTable1698734800003,
     CreateEventsTable1698734800006,
     CreateObjectivesTable1698734800006,
-    CreateBillingsTable1698734800006,
+    UpdateBillingsTable1698734800014,
     CreateCompanyTable1698734800007,
     CreateOffersTable1698734800008,
     CreateGraphTable1698734800009,

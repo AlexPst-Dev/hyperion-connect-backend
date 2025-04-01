@@ -1,6 +1,6 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -11,21 +11,14 @@ import { Objectives } from "./objectives-model";
 
 @Entity("billings")
 export class Billings {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @ManyToOne(() => Objectives, (objectives) => objectives.id)
-  @JoinColumn({ name: "objective_id" })
-  objective: Objectives;
-
-  @Column({ name: "objective_id" })
+  @PrimaryColumn()
   objectiveId: number;
 
-  @Column({ type: "date" })
-  startDate: Date;
+  @PrimaryColumn()
+  billingId: number;
 
-  @Column({ type: "date" })
-  endDate: Date;
+  @PrimaryColumn({ type: "date" })
+  date: Date;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
   globalAmount: number;
@@ -47,4 +40,8 @@ export class Billings {
 
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
+
+  @ManyToOne(() => Objectives, (objectives) => objectives.id)
+  @JoinColumn({ name: "objective_id" })
+  objective: Objectives;
 }

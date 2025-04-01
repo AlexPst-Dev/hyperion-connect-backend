@@ -6,30 +6,30 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class CreateBillingsTable1698734800006 implements MigrationInterface {
+export class UpdateBillingsTable1698734800014 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Drop the existing billing table if it exists
+    await queryRunner.dropTable("billings", true, true);
+
+    // Create the new billing table with a composite primary key
     await queryRunner.createTable(
       new Table({
         name: "billings",
         columns: [
           new TableColumn({
-            name: "id",
-            type: "int",
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "increment",
-          }),
-          new TableColumn({
             name: "objective_id",
             type: "int",
+            isPrimary: true,
           }),
           new TableColumn({
-            name: "start_date",
-            type: "date",
+            name: "billing_id",
+            type: "int",
+            isPrimary: true,
           }),
           new TableColumn({
-            name: "end_date",
+            name: "date",
             type: "date",
+            isPrimary: true,
           }),
           new TableColumn({
             name: "global_amount",
@@ -87,13 +87,11 @@ export class CreateBillingsTable1698734800006 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable("billings");
-    if (table) {
-      const foreignKey = table.foreignKeys.find(
-        (fk) => fk.columnNames.indexOf("objective_id") !== -1
-      );
-      if (foreignKey) {
-        await queryRunner.dropForeignKey("billings", foreignKey);
-      }
+    const foreignKey = table?.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf("objective_id") !== -1
+    );
+    if (foreignKey) {
+      await queryRunner.dropForeignKey("billings", foreignKey);
     }
     await queryRunner.dropTable("billings");
   }
