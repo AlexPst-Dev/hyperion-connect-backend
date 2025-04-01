@@ -1,0 +1,35 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
+
+export enum FileCategory {
+  IMAGE = "IMAGE",
+  MEDICAL_FILE = "MEDICAL_FILE",
+  SESSION_IMPORTED = "SESSION_IMPORTED",
+  SUBSCRIPTION = "SUBSCRIPTION",
+}
+
+@Entity("files")
+export class Files {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  label: string;
+
+  @Column()
+  url: string;
+
+  @Column({ type: "enum", enum: FileCategory, name: "file_category" })
+  fileCategory: FileCategory;
+
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: Date;
+}
