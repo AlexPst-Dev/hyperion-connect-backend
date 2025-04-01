@@ -6,11 +6,11 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class CreateCompanyTable1698734800007 implements MigrationInterface {
+export class CreateCompaniesTable1698734800008 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "company",
+        name: "companies",
         columns: [
           new TableColumn({
             name: "id",
@@ -104,37 +104,48 @@ export class CreateCompanyTable1698734800007 implements MigrationInterface {
       true
     );
 
-    await queryRunner.createForeignKey(
-      "company",
-      new TableForeignKey({
-        columnNames: ["responsible_id"],
-        referencedColumnNames: ["id"],
-        referencedTableName: "users",
-        onDelete: "CASCADE",
-      })
+    const table = await queryRunner.getTable("companies");
+    const responsibleForeignKey = table?.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf("responsible_id") !== -1
     );
+    if (!responsibleForeignKey) {
+      await queryRunner.createForeignKey(
+        "companies",
+        new TableForeignKey({
+          columnNames: ["responsible_id"],
+          referencedColumnNames: ["id"],
+          referencedTableName: "users",
+          onDelete: "CASCADE",
+        })
+      );
+    }
 
-    await queryRunner.createForeignKey(
-      "company",
-      new TableForeignKey({
-        columnNames: ["file_image_company_id"],
-        referencedColumnNames: ["id"],
-        referencedTableName: "files",
-        onDelete: "CASCADE",
-      })
+    const fileForeignKey = table?.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf("file_image_company_id") !== -1
     );
+    if (!fileForeignKey) {
+      await queryRunner.createForeignKey(
+        "companies",
+        new TableForeignKey({
+          columnNames: ["file_image_company_id"],
+          referencedColumnNames: ["id"],
+          referencedTableName: "files",
+          onDelete: "CASCADE",
+        })
+      );
+    }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    const table = await queryRunner.getTable("company");
+    const table = await queryRunner.getTable("companies");
     if (table) {
       const foreignKeys = table.foreignKeys;
 
       for (const foreignKey of foreignKeys) {
-        await queryRunner.dropForeignKey("company", foreignKey);
+        await queryRunner.dropForeignKey("companies", foreignKey);
       }
     }
 
-    await queryRunner.dropTable("company");
+    await queryRunner.dropTable("companies");
   }
 }

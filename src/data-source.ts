@@ -36,12 +36,18 @@ import {
 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
-import { CreateSessionsTable1698734800002 } from "./migrations/sessions-migration";
-import { CreateExercisesTable1698734800003 } from "./migrations/exercices-migration";
+import {
+  CreateSessionsTable1698734800002,
+  UpdateSessionsTable1698734800017,
+} from "./migrations/sessions-migration";
+import {
+  CreateExercisesTable1698734800003,
+  UpdateExercisesTable1698734800018,
+} from "./migrations/exercices-migration";
 import { CreateEventsTable1698734800006 } from "./migrations/events-migration";
 import { CreateObjectivesTable1698734800006 } from "./migrations/objectives-migration";
 import { UpdateBillingsTable1698734800014 } from "./migrations/billings-migration";
-import { CreateCompanyTable1698734800007 } from "./migrations/companies-migration";
+import { CreateCompaniesTable1698734800008 } from "./migrations/companies-migration";
 import { CreateOffersTable1698734800008 } from "./migrations/offers-migration";
 import { CreateGraphTable1698734800009 } from "./migrations/graphs-migration";
 import { CreateFilesTable1698734800010 } from "./migrations/files-migration";
@@ -101,13 +107,15 @@ export const AppDataSource = new DataSource({
     CreateEventsTable1698734800006,
     CreateObjectivesTable1698734800006,
     UpdateBillingsTable1698734800014,
-    CreateCompanyTable1698734800007,
+    CreateCompaniesTable1698734800008,
     CreateOffersTable1698734800008,
     CreateGraphTable1698734800009,
     CreateFilesTable1698734800010,
     CreateNotificationsTable1698734800011,
     CreateCategoriesTable1698734800012,
     CreateSubscriptionsTable1698734800013,
+    UpdateSessionsTable1698734800017,
+    UpdateExercisesTable1698734800018,
   ],
   subscribers: [],
 });

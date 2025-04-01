@@ -1,6 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
+} from "typeorm";
+import { Files } from "./files-model";
 
-@Entity('sessions')
+@Entity("sessions")
 export class Sessions {
   @PrimaryGeneratedColumn()
   id: number;
@@ -8,16 +17,20 @@ export class Sessions {
   @Column()
   label: string;
 
-  @Column({ name: 'nb_exercises' })
+  @Column({ name: "nb_exercises" })
   numberOfExercises: number;
 
-  @Column({ name: 'duration_time' })
+  @Column({ name: "duration_time" })
   durationTime: string;
 
-  @Column({ name: 'file_picture_id', nullable: true })
+  @ManyToOne(() => Files, (file) => file.id)
+  @JoinColumn({ name: "file_picture_id" })
+  filePicture: Files;
+
+  @Column({ name: "file_picture_id", nullable: true })
   filePictureId: number;
 
-  @Column({ name: 'list_exercises', type: 'varchar', nullable: true })
+  @Column({ name: "list_exercises", type: "varchar", nullable: true })
   listExercises: string;
 
   @Column({ nullable: true })
@@ -32,9 +45,9 @@ export class Sessions {
   @Column({ default: true })
   isActive: boolean;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
 }
