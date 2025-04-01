@@ -30,7 +30,10 @@ import { Notifications } from "./models/notifications-model";
 import { Categories } from "./models/categories-model";
 import { Subscriptions } from "./models/subscription-model";
 
-import { CreateUserMigration1698734800000 } from "./migrations/users-migration";
+import {
+  CreateUserMigration1698734800000,
+  UpdateUserMigration1698734800016,
+} from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
 import { CreateClientTable1698784800021 } from "./migrations/client-migration";
 import { CreateSessionsTable1698734800002 } from "./migrations/sessions-migration";
@@ -90,6 +93,7 @@ export const AppDataSource = new DataSource({
   ],
   migrations: [
     CreateUserMigration1698734800000,
+    UpdateUserMigration1698734800016,
     CreateContactTable1698734800001,
     CreateClientTable1698784800021,
     CreateSessionsTable1698734800002,

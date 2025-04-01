@@ -6,7 +6,11 @@ import {
   UpdateDateColumn,
   TableInheritance,
   ChildEntity,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+
+import { Categories } from "./categories-model";
 
 export enum ProfileCategory {
   SPORTSMAN = "sportsman",
@@ -89,8 +93,12 @@ export class User {
 
 @ChildEntity(ProfileCategory.SPORTSMAN)
 export class Sportsman extends User {
+  @ManyToOne(() => Categories, (category) => category.id)
+  @JoinColumn({ name: "sport_category" })
+  sportCategory: Categories;
+
   @Column({ name: "sport_category", nullable: true })
-  sportCategory: number;
+  sportCategoryId: number;
 
   @Column({ name: "dispo_days", type: "char", length: 7, nullable: true })
   availableDays: string;
@@ -116,8 +124,12 @@ export class Sportsman extends User {
 
 @ChildEntity(ProfileCategory.COACH)
 export class Coach extends User {
+  @ManyToOne(() => Categories, (category) => category.id)
+  @JoinColumn({ name: "sport_category" })
+  sportCategory: Categories;
+
   @Column({ name: "sport_category", nullable: true })
-  sportCategory: number;
+  sportCategoryId: number;
 
   @Column({ name: "can_import_sessions", default: false })
   canImportSessions: boolean;
@@ -125,8 +137,12 @@ export class Coach extends User {
 
 @ChildEntity(ProfileCategory.MEDIC)
 export class Medic extends User {
+  @ManyToOne(() => Categories, (category) => category.id)
+  @JoinColumn({ name: "medic_category" })
+  medicCategory: Categories;
+
   @Column({ name: "medic_category", nullable: true })
-  medicCategory: number;
+  medicCategoryId: number;
 
   @Column({ name: "can_import_sessions", default: false })
   canImportSessions: boolean;
