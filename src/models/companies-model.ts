@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { User } from "./users-model";
+import { Files } from "./files-model";
 
 @Entity("companies")
 export class Companies {
@@ -23,6 +24,10 @@ export class Companies {
 
   @Column()
   name: string;
+
+  @ManyToOne(() => Files, (file) => file.id)
+  @JoinColumn({ name: "file_image_company_id" })
+  fileImageCompany: Files;
 
   @Column({ name: "file_image_company_id", nullable: true })
   fileImageCompanyId: number;

@@ -6,7 +6,11 @@ import {
   UpdateDateColumn,
   TableInheritance,
   ChildEntity,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+
+import { Sessions } from "./sessions-model";
 
 export enum EventCategory {
   HYPERION = "hyperion",
@@ -67,7 +71,11 @@ export class HyperlinkEvent extends Events {
 
 @ChildEntity(EventCategory.COACHING)
 export class CoachingEvent extends Events {
-  @Column({ nullable: true })
+  @ManyToOne(() => Sessions, (session) => session.id)
+  @JoinColumn({ name: "session_id" })
+  session: Sessions;
+
+  @Column({ name: "session_id", nullable: true })
   sessionId: number;
 
   @Column({ nullable: true })

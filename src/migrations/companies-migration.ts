@@ -6,11 +6,11 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class CreateCompaniesTable1698734800007 implements MigrationInterface {
+export class CreateCompanyTable1698734800007 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "companies",
+        name: "company",
         columns: [
           new TableColumn({
             name: "id",
@@ -105,7 +105,7 @@ export class CreateCompaniesTable1698734800007 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      "companies",
+      "company",
       new TableForeignKey({
         columnNames: ["responsible_id"],
         referencedColumnNames: ["id"],
@@ -113,16 +113,28 @@ export class CreateCompaniesTable1698734800007 implements MigrationInterface {
         onDelete: "CASCADE",
       })
     );
+
+    await queryRunner.createForeignKey(
+      "company",
+      new TableForeignKey({
+        columnNames: ["file_image_company_id"],
+        referencedColumnNames: ["id"],
+        referencedTableName: "files",
+        onDelete: "CASCADE",
+      })
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    const table = await queryRunner.getTable("companies");
-    const foreignKey = table?.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf("responsible_id") !== -1
-    );
-    if (foreignKey) {
-      await queryRunner.dropForeignKey("companies", foreignKey);
+    const table = await queryRunner.getTable("company");
+    if (table) {
+      const foreignKeys = table.foreignKeys;
+
+      for (const foreignKey of foreignKeys) {
+        await queryRunner.dropForeignKey("company", foreignKey);
+      }
     }
-    await queryRunner.dropTable("companies");
+
+    await queryRunner.dropTable("company");
   }
 }

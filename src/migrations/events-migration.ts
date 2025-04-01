@@ -6,7 +6,7 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class CreateEventsTable1698734800004 implements MigrationInterface {
+export class CreateEventsTable1698734800006 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Create the base events table
     await queryRunner.createTable(
@@ -149,6 +149,12 @@ export class CreateEventsTable1698734800004 implements MigrationInterface {
             columnNames: ["id"],
             referencedTableName: "events",
             referencedColumnNames: ["id"],
+          }),
+          new TableForeignKey({
+            columnNames: ["session_id"],
+            referencedTableName: "sessions",
+            referencedColumnNames: ["id"],
+            onDelete: "CASCADE",
           }),
         ],
       }),
