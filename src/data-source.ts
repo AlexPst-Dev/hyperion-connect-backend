@@ -32,6 +32,7 @@ import { Subscriptions } from "./models/subscription-model";
 
 import {
   CreateUserMigration1698734800000,
+  UpdateSportsmanMigration1698734800017,
   UpdateUserMigration1698734800016,
 } from "./migrations/users-migration";
 import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
@@ -116,6 +117,7 @@ export const AppDataSource = new DataSource({
     CreateSubscriptionsTable1698734800013,
     UpdateSessionsTable1698734800017,
     UpdateExercisesTable1698734800018,
+    UpdateSportsmanMigration1698734800017,
   ],
   subscribers: [],
 });

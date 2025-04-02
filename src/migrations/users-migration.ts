@@ -399,3 +399,32 @@ export class UpdateUserMigration1698734800016 implements MigrationInterface {
     }
   }
 }
+
+export class UpdateSportsmanMigration1698734800017
+  implements MigrationInterface
+{
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    // Add foreign key for sportsman.subscription_id
+    await queryRunner.createForeignKey(
+      "sportsman",
+      new TableForeignKey({
+        columnNames: ["subscription_id"],
+        referencedColumnNames: ["id"],
+        referencedTableName: "subscriptions",
+        onDelete: "SET NULL",
+      })
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    const sportsmanTable = await queryRunner.getTable("sportsman");
+
+    const sportsmanForeignKey = sportsmanTable?.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf("subscription_id") !== -1
+    );
+
+    if (sportsmanForeignKey) {
+      await queryRunner.dropForeignKey("sportsman", sportsmanForeignKey);
+    }
+  }
+}

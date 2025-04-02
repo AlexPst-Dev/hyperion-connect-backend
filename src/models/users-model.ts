@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 
 import { Categories } from "./categories-model";
+import { Subscriptions } from "./subscription-model";
 
 export enum ProfileCategory {
   SPORTSMAN = "sportsman",
@@ -117,6 +118,10 @@ export class Sportsman extends User {
 
   @Column({ name: "graph_id", nullable: true })
   graphId: number;
+
+  @ManyToOne(() => Subscriptions, (subscription) => subscription.id)
+  @JoinColumn({ name: "subscription_id" })
+  subscription: Subscriptions;
 
   @Column({ name: "subscription_id", nullable: true })
   subscriptionId: number;
