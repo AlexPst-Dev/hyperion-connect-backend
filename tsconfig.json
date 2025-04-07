@@ -13,6 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "strictPropertyInitialization": false
   },
-  "include": ["src/**/*", "types.d.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }
