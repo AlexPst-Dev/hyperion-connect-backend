@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 
-dotenv.config(); // Charger les variables d'environnement
+dotenv.config();
 
 export const config = {
   env: process.env.NODE_ENV || "development",
@@ -11,8 +11,8 @@ export const config = {
     password: process.env.DB_PASS || "",
     database: process.env.DB_NAME || "hyperion_connect",
     logging: process.env.DB_LOGGING === "true",
-    synchronize: process.env.DB_SYNC === "true", // Par défaut, false en prod
-    dropSchema: process.env.DB_DROP_SCHEMA === "true", // Attention : false en prod
+    synchronize: process.env.DB_SYNC === "true",
+    dropSchema: process.env.DB_DROP_SCHEMA === "true",
   },
   jwt: {
     secret: process.env.JWT_SECRET || "defaultsecret",

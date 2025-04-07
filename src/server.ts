@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 // Test database connection
 async function testDatabaseConnection() {
   try {
-    await AppDataSource.initialize(); // Initialisation de la connexion avec TypeORM
+    await AppDataSource.initialize();
     console.log("MySQL connection has been established successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);

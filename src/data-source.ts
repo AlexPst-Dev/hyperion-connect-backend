@@ -59,7 +59,7 @@ import { CreateSubscriptionsTable1698734800013 } from "./migrations/subscription
 
 import * as dotenv from "dotenv";
 
-dotenv.config(); // Charge les variables d'environnement
+dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: "mysql",
