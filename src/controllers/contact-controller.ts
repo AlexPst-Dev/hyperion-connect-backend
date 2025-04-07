@@ -3,20 +3,23 @@ import { AppDataSource } from "../data-source";
 import { Contact } from "../models/contact-model";
 import { User } from "../models/users-model";
 
-export const createContactList = async (req: Request, res: Response) => {
+export const createContactList = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { userId, contactId } = req.body;
 
     if (!userId || !contactId) {
-      return res
-        .status(400)
-        .json({ message: "userId et contactId sont requis" });
+      res.status(400).json({ message: "userId et contactId sont requis" });
+      return;
     }
 
     if (userId === contactId) {
-      return res
+      res
         .status(400)
         .json({ message: "Un utilisateur ne peut pas s'ajouter lui-même" });
+      return;
     }
 
     const contactRepo = AppDataSource.getRepository(Contact);
@@ -26,10 +29,11 @@ export const createContactList = async (req: Request, res: Response) => {
     });
 
     if (existingContactList) {
-      return res.status(400).json({
+      res.status(400).json({
         message:
           "Une liste de contacts existe déjà pour cet utilisateur. Utilisez la méthode update.",
       });
+      return;
     }
 
     const newContact = contactRepo.create({
