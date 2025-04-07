@@ -4,14 +4,16 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  TableInheritance,
-  ChildEntity,
   ManyToOne,
   JoinColumn,
+  PrimaryColumn,
+  OneToOne,
 } from "typeorm";
 
 import { Categories } from "./categories-model";
 import { Subscriptions } from "./subscription-model";
+import { Graphs } from "./graphs-model";
+import { Companies } from "./companies-model";
 
 export enum ProfileCategory {
   SPORTSMAN = "sportsman",
@@ -23,7 +25,6 @@ export enum ProfileCategory {
 }
 
 @Entity("users")
-@TableInheritance({ column: { type: "varchar", name: "profile_category" } })
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -52,9 +53,6 @@ export class User {
   @Column({ name: "pc", nullable: true })
   postalCode: string;
 
-  @Column({ type: "varchar", name: "profile_category" })
-  profileCategory: ProfileCategory;
-
   @Column({ type: "text", nullable: true })
   description: string;
 
@@ -82,8 +80,11 @@ export class User {
   @Column({ name: "link_youtube", nullable: true })
   youtubeLink: string;
 
-  @Column({ nullable: false, default: true })
+  @Column({ name: "is_active", nullable: false, default: true })
   isActive: boolean;
+
+  @Column({ type: "enum", enum: ProfileCategory })
+  profileCategory: ProfileCategory;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
@@ -92,8 +93,15 @@ export class User {
   updatedAt: Date;
 }
 
-@ChildEntity(ProfileCategory.SPORTSMAN)
-export class Sportsman extends User {
+@Entity(ProfileCategory.SPORTSMAN)
+export class Sportsman {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
   @ManyToOne(() => Categories, (category) => category.id)
   @JoinColumn({ name: "sport_category" })
   sportCategory: Categories;
@@ -116,6 +124,10 @@ export class Sportsman extends User {
   @Column({ name: "list_medics_ids", nullable: true })
   listMedicsIds: string;
 
+  @OneToOne(() => Graphs, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "graph_id" })
+  graph: Graphs;
+
   @Column({ name: "graph_id", nullable: true })
   graphId: number;
 
@@ -127,8 +139,15 @@ export class Sportsman extends User {
   subscriptionId: number;
 }
 
-@ChildEntity(ProfileCategory.COACH)
-export class Coach extends User {
+@Entity(ProfileCategory.COACH)
+export class Coach {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
   @ManyToOne(() => Categories, (category) => category.id)
   @JoinColumn({ name: "sport_category" })
   sportCategory: Categories;
@@ -140,8 +159,15 @@ export class Coach extends User {
   canImportSessions: boolean;
 }
 
-@ChildEntity(ProfileCategory.MEDIC)
-export class Medic extends User {
+@Entity(ProfileCategory.MEDIC)
+export class Medic {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
   @ManyToOne(() => Categories, (category) => category.id)
   @JoinColumn({ name: "medic_category" })
   medicCategory: Categories;
@@ -153,14 +179,39 @@ export class Medic extends User {
   canImportSessions: boolean;
 }
 
-@ChildEntity(ProfileCategory.FREE)
-export class FreeUser extends User {}
+@Entity(ProfileCategory.FREE)
+export class Free {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-@ChildEntity(ProfileCategory.PARTNER)
-export class Partner extends User {
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user: User;
+}
+
+@Entity(ProfileCategory.PARTNER)
+export class Partner {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
+  @OneToOne(() => Companies, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "company_id" })
+  company: Companies;
+
   @Column({ name: "company_id", nullable: true })
   companyId: number;
 }
 
-@ChildEntity(ProfileCategory.ADMIN)
-export class Admin extends User {}
+@Entity(ProfileCategory.ADMIN)
+export class Admin {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user: User;
+}

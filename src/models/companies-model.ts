@@ -25,9 +25,9 @@ export class Companies {
   @Column()
   name: string;
 
-  @ManyToOne(() => Files, (file) => file.id)
-  @JoinColumn({ name: "file_image_company_id" })
-  fileImageCompany: Files;
+  // @ManyToOne(() => Files, (file) => file.id)
+  // @JoinColumn({ name: "file_image_company_id" })
+  // fileImageCompany: Files;
 
   @Column({ name: "file_image_company_id", nullable: true })
   fileImageCompanyId: number;
