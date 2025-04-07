@@ -3,45 +3,45 @@ import { AppDataSource } from "../data-source";
 import { Contact } from "../models/contact-model";
 import { User } from "../models/users-model";
 
-export const createContactList = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const createContactList = async (req: Request, res: Response) => {
   try {
-    const { userId, contactIds } = req.body;
+    const { userId, contactId } = req.body;
 
-    if (!userId || !Array.isArray(contactIds)) {
-      res.status(400).json({ message: "userId et contactIds[] sont requis" });
-      return;
+    if (!userId || !contactId) {
+      return res
+        .status(400)
+        .json({ message: "userId et contactId sont requis" });
     }
 
-    const userRepo = AppDataSource.getRepository(User);
+    if (userId === contactId) {
+      return res
+        .status(400)
+        .json({ message: "Un utilisateur ne peut pas s'ajouter lui-même" });
+    }
+
     const contactRepo = AppDataSource.getRepository(Contact);
 
-    const user = await userRepo.findOne({ where: { id: userId } });
-    if (!user) {
-      res.status(404).json({ message: "Utilisateur non trouvé" });
-      return;
+    const existingContactList = await contactRepo.findOne({
+      where: { userId },
+    });
+
+    if (existingContactList) {
+      return res.status(400).json({
+        message:
+          "Une liste de contacts existe déjà pour cet utilisateur. Utilisez la méthode update.",
+      });
     }
 
-    // Filtering out invalid IDs
-    const cleanedIds = contactIds
-      .map((id: any) => parseInt(id))
-      .filter((id: number) => !isNaN(id));
-    const contactString = cleanedIds.join("; ");
-
-    const contactEntry = contactRepo.create({
-      user,
+    const newContact = contactRepo.create({
       userId,
-      listOfContactIds: contactString,
+      listOfContactIds: `${contactId}`,
     });
 
-    const savedContact = await contactRepo.save(contactEntry);
+    await contactRepo.save(newContact);
 
-    res.status(201).json({
-      message: "Liste de contacts enregistrée",
-      contact: savedContact,
-    });
+    res
+      .status(201)
+      .json({ message: "Liste de contacts créée", contactList: newContact });
   } catch (error) {
     console.error(
       "Erreur lors de la création de la liste de contacts :",
