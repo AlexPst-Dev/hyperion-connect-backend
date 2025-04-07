@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRoutes from "./routes/user-routes";
 import authRoutes from "./routes/auth-routes";
 import contactRoutes from "./routes/contact-routes";
+import clientRoutes from "./routes/client-routes";
 
 dotenv.config();
 
@@ -33,6 +34,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/contacts", contactRoutes);
+
+app.use("/api/clients", clientRoutes);
 
 // Start server
 app.listen(PORT, () => {
