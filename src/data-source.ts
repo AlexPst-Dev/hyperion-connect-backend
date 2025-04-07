@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
+import { config } from "./config/config";
 
 import {
   User,
   Sportsman,
   Coach,
   Medic,
-  FreeUser,
+  Free,
   Partner,
   Admin,
 } from "./models/users-model";
@@ -63,19 +64,20 @@ dotenv.config(); // Charge les variables d'environnement
 export const AppDataSource = new DataSource({
   type: "mysql",
   driver: require("mysql2"),
-  host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "3306", 10),
-  username: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
-  database: process.env.DB_NAME || "hyperion_connect",
-  synchronize: false,
-  logging: true, // Activez le logging pour déboguer
+  host: config.db.host,
+  port: config.db.port,
+  username: config.db.username,
+  password: config.db.password,
+  database: config.db.database,
+  synchronize: config.db.synchronize,
+  logging: config.db.logging,
+  dropSchema: config.db.dropSchema,
   entities: [
     User,
     Sportsman,
     Coach,
     Medic,
-    FreeUser,
+    Free,
     Partner,
     Admin,
     Contact,

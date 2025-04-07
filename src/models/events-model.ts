@@ -4,24 +4,22 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  TableInheritance,
-  ChildEntity,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from "typeorm";
 
 import { Sessions } from "./sessions-model";
 
 export enum EventCategory {
-  HYPERION = "hyperion",
-  HYPERLINK = "hyperlink",
-  MEDICAL = "medical",
-  COACHING = "coaching",
+  HYPERION = "hyperion_event",
+  HYPERLINK = "hyperlink_event",
+  MEDICAL = "medical_event",
+  COACHING = "coaching_event",
   SPORTING_ACTIVITY = "sporting_activity",
 }
 
 @Entity("events")
-@TableInheritance({ column: { type: "varchar", name: "event_category" } })
 export class Events {
   @PrimaryGeneratedColumn()
   id: number;
@@ -60,17 +58,38 @@ export class Events {
   updatedAt: Date;
 }
 
-@ChildEntity(EventCategory.HYPERION)
-export class HyperionEvent extends Events {}
+@Entity(EventCategory.HYPERION)
+export class HyperionEvent {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-@ChildEntity(EventCategory.HYPERLINK)
-export class HyperlinkEvent extends Events {
+  @OneToOne(() => Events, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "event_id" })
+  event: Events;
+}
+
+@Entity(EventCategory.HYPERLINK)
+export class HyperlinkEvent {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => Events, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "event_id" })
+  event: Events;
+
   @Column({ nullable: true })
   theme: string;
 }
 
-@ChildEntity(EventCategory.COACHING)
+@Entity(EventCategory.COACHING)
 export class CoachingEvent extends Events {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => Events, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "event_id" })
+  event: Events;
+
   @ManyToOne(() => Sessions, (session) => session.id)
   @JoinColumn({ name: "session_id" })
   session: Sessions;
@@ -94,11 +113,25 @@ export class CoachingEvent extends Events {
   coachNote: string;
 }
 
-@ChildEntity(EventCategory.MEDICAL)
-export class MedicalEvent extends Events {}
+@Entity(EventCategory.MEDICAL)
+export class MedicalEvent extends Events {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-@ChildEntity(EventCategory.SPORTING_ACTIVITY)
+  @OneToOne(() => Events, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "event_id" })
+  event: Events;
+}
+
+@Entity(EventCategory.SPORTING_ACTIVITY)
 export class SportingActivityEvent extends Events {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => Events, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "event_id" })
+  event: Events;
+
   @Column({ nullable: true })
   maxParticipants: number;
 }

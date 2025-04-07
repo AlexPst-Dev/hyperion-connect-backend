@@ -120,20 +120,20 @@ export class CreateCompaniesTable1698734800008 implements MigrationInterface {
       );
     }
 
-    const fileForeignKey = table?.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf("file_image_company_id") !== -1
-    );
-    if (!fileForeignKey) {
-      await queryRunner.createForeignKey(
-        "companies",
-        new TableForeignKey({
-          columnNames: ["file_image_company_id"],
-          referencedColumnNames: ["id"],
-          referencedTableName: "files",
-          onDelete: "CASCADE",
-        })
-      );
-    }
+    // const fileForeignKey = table?.foreignKeys.find(
+    //   (fk) => fk.columnNames.indexOf("file_image_company_id") !== -1
+    // );
+    // if (!fileForeignKey) {
+    //   await queryRunner.createForeignKey(
+    //     "companies",
+    //     new TableForeignKey({
+    //       columnNames: ["file_image_company_id"],
+    //       referencedColumnNames: ["id"],
+    //       referencedTableName: "files",
+    //       onDelete: "CASCADE",
+    //     })
+    //   );
+    // }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

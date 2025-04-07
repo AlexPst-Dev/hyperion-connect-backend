@@ -4,10 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  TableInheritance,
-  ChildEntity,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from "typeorm";
 import { Companies } from "./companies-model";
 
@@ -17,7 +16,6 @@ export enum OfferCategory {
 }
 
 @Entity("offers")
-@TableInheritance({ column: { type: "varchar", name: "offer_category" } })
 export class Offers {
   @PrimaryGeneratedColumn()
   id: number;
@@ -57,8 +55,15 @@ export class Offers {
   updatedAt: Date;
 }
 
-@ChildEntity(OfferCategory.DISCOUNT)
-export class DiscountOffer extends Offers {
+@Entity(OfferCategory.DISCOUNT)
+export class DiscountOffer {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => Offers, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "offer_id" })
+  offer: Offers;
+
   @Column({ type: "decimal", precision: 10, scale: 2 })
   amount: number;
 
@@ -66,8 +71,15 @@ export class DiscountOffer extends Offers {
   link: string;
 }
 
-@ChildEntity(OfferCategory.SPONSORSHIP)
-export class SponsorshipOffer extends Offers {
+@Entity(OfferCategory.SPONSORSHIP)
+export class SponsorshipOffer {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => Offers, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "offer_id" })
+  offer: Offers;
+
   @Column({ name: "nb_person_max", type: "int" })
   nbPersonMax: number;
 
