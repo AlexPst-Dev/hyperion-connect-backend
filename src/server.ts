@@ -1,31 +1,21 @@
-import express, { Request, Response } from 'express';
-import { Dialect, Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
+import express, { Request, Response } from "express";
+import { AppDataSource } from "./data-source";
+import dotenv from "dotenv";
+import userRoutes from "./routes/user-routes";
+import authRoutes from "./routes/auth-routes";
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
-
-// Database connection
-const sequelize = new Sequelize(
-  process.env.DB_NAME!, 
-  process.env.DB_USER!, 
-  process.env.DB_PASS, 
-  {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT as Dialect,
-    port: Number(process.env.DB_PORT),
-  }
-);
+const PORT = process.env.PORT || 3000;
 
 // Test database connection
 async function testDatabaseConnection() {
   try {
-    await sequelize.authenticate();
-    console.log('MySQL connection has been established successfully.');
+    await AppDataSource.initialize(); // Initialisation de la connexion avec TypeORM
+    console.log("MySQL connection has been established successfully.");
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error("Unable to connect to the database:", error);
   }
 }
 
@@ -33,9 +23,13 @@ async function testDatabaseConnection() {
 app.use(express.json());
 
 // Basic route
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome to the Express MySQL project!' });
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "Welcome to the Express MySQL project with TypeORM!" });
 });
+
+app.use("/api/users", userRoutes);
+
+app.use("/api/auth", authRoutes);
 
 // Start server
 app.listen(PORT, () => {

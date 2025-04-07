@@ -1,43 +1,23 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); // Charger les variables d'environnement
 
-interface SequelizeConfig {
-  username: string;
-  password: string | null;
-  database: string;
-  host: string;
-  dialect: 'mysql';
-}
-
-interface ConfigOptions {
-  development: SequelizeConfig;
-  test: SequelizeConfig;
-  production: SequelizeConfig;
-}
-
-const config: ConfigOptions = {
-  development: {
-    username: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || null,
-    database: process.env.DB_NAME || 'database_development',
-    host: process.env.DB_HOST || '127.0.0.1',
-    dialect: 'mysql'
+export const config = {
+  env: process.env.NODE_ENV || "development",
+  db: {
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "3306", 10),
+    username: process.env.DB_USER || "root",
+    password: process.env.DB_PASS || "",
+    database: process.env.DB_NAME || "hyperion_connect",
+    logging: process.env.DB_LOGGING === "true",
+    synchronize: process.env.DB_SYNC === "true", // Par défaut, false en prod
+    dropSchema: process.env.DB_DROP_SCHEMA === "true", // Attention : false en prod
   },
-  test: {
-    username: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || null,
-    database: process.env.DB_NAME || 'database_test',
-    host: process.env.DB_HOST || '127.0.0.1',
-    dialect: 'mysql'
+  jwt: {
+    secret: process.env.JWT_SECRET || "defaultsecret",
+    expiresIn: process.env.JWT_EXPIRES_IN
+      ? Number(process.env.JWT_EXPIRES_IN)
+      : 86400,
   },
-  production: {
-    username: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || null,
-    database: process.env.DB_NAME || 'database_production',
-    host: process.env.DB_HOST || '127.0.0.1',
-    dialect: 'mysql'
-  }
 };
-
-export default config;
