@@ -3,6 +3,7 @@ import { AppDataSource } from "./data-source";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user-routes";
 import authRoutes from "./routes/auth-routes";
+import contactRoutes from "./routes/contact-routes";
 
 dotenv.config();
 
@@ -30,6 +31,8 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/users", userRoutes);
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/contacts", contactRoutes);
 
 // Start server
 app.listen(PORT, () => {
