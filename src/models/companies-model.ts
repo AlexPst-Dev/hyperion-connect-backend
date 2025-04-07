@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from "typeorm";
 import { User } from "./users-model";
 import { Files } from "./files-model";
@@ -25,12 +26,9 @@ export class Companies {
   @Column()
   name: string;
 
-  // @ManyToOne(() => Files, (file) => file.id)
-  // @JoinColumn({ name: "file_image_company_id" })
-  // fileImageCompany: Files;
-
-  @Column({ name: "file_image_company_id", nullable: true })
-  fileImageCompanyId: number;
+  @OneToOne(() => Files, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "file_image_company_id" })
+  fileImageCompany: Files;
 
   @Column({ type: "text", nullable: true })
   description: string;
