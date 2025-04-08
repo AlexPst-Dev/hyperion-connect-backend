@@ -20,6 +20,8 @@ import {
   HyperlinkEvent,
   CoachingEvent,
   SportingActivityEvent,
+  HyperionEvent,
+  MedicalEvent,
 } from "./models/events-model";
 import { Objectives } from "./models/objectives-model";
 import { Billings } from "./models/billings-model";
@@ -85,6 +87,8 @@ export const AppDataSource = new DataSource({
     Sessions,
     Exercises,
     Events,
+    HyperionEvent,
+    MedicalEvent,
     HyperlinkEvent,
     CoachingEvent,
     SportingActivityEvent,
