@@ -6,6 +6,7 @@ import {
   updateSessionById,
   softDeleteSessionById,
   deleteSessionById,
+  getExercisesBySessionId,
 } from "../controllers/session-controller";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post("/", createSession);
 router.get("/", getAllSessions);
 router.get("/:id", getSessionById);
+router.get("/:id/exercises", getExercisesBySessionId);
 router.patch("/:id", updateSessionById);
 router.patch("/:id/archive", softDeleteSessionById);
 router.delete("/:id", deleteSessionById);

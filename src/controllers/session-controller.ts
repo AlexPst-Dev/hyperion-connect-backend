@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Sessions } from "../models/sessions-model";
 import { Files } from "../models/files-model";
+import { Exercises } from "../models/exercices-model";
+import { In } from "typeorm";
+import { Categories, CategoryType } from "../models/categories-model";
 
 export const createSession = async (
   req: Request,
@@ -185,6 +188,84 @@ export const deleteSessionById = async (
     res.status(200).json({ message: "Session supprimée définitivement" });
   } catch (error) {
     console.error("Erreur lors de la suppression :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+export const getExercisesBySessionId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const sessionId = parseInt(req.params.id, 10);
+
+  try {
+    const sessionRepo = AppDataSource.getRepository(Sessions);
+    const exerciseRepo = AppDataSource.getRepository(Exercises);
+    const fileRepo = AppDataSource.getRepository(Files);
+    const categoryRepo = AppDataSource.getRepository(Categories);
+
+    const session = await sessionRepo.findOneBy({ id: sessionId });
+
+    if (!session) {
+      res.status(404).json({ message: "Session non trouvée" });
+      return;
+    }
+
+    if (!session.listExercises) {
+      res.status(200).json({ exercises: [] });
+      return;
+    }
+
+    const exerciseIds = session.listExercises
+      .split(";")
+      .map((id) => parseInt(id.trim(), 10))
+      .filter((id) => !isNaN(id));
+
+    if (exerciseIds.length === 0) {
+      res.status(200).json({ exercises: [] });
+      return;
+    }
+
+    const exercises = await exerciseRepo.find({
+      where: { id: In(exerciseIds), isActive: true },
+    });
+
+    const exercisesWithDetails = await Promise.all(
+      exercises.map(async (exercise) => {
+        let file: Files | null = null;
+        let muscleGroups: Categories[] = [];
+
+        if (exercise.filePictureId) {
+          file = await fileRepo.findOneBy({ id: exercise.filePictureId });
+        }
+
+        if (exercise.listMuscleGroupIds) {
+          const muscleGroupIds = exercise.listMuscleGroupIds
+            .split(";")
+            .map((id) => parseInt(id.trim(), 10))
+            .filter((id) => !isNaN(id));
+
+          if (muscleGroupIds.length > 0) {
+            muscleGroups = await categoryRepo.find({
+              where: {
+                id: In(muscleGroupIds),
+                categoryType: CategoryType.MUSCLE_GROUP,
+              },
+            });
+          }
+        }
+
+        return {
+          ...exercise,
+          filePicture: file || null,
+          muscleGroups,
+        };
+      })
+    );
+
+    res.status(200).json({ exercises: exercisesWithDetails });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des exercices :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
