@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Exercises } from "../models/exercices-model";
 import { Files } from "../models/files-model";
+import { Categories, CategoryType } from "../models/categories-model";
+import { In } from "typeorm";
 
 export const createExercice = async (
   req: Request,
@@ -182,6 +184,55 @@ export const deleteExerciceById = async (
     res.status(200).json({ message: "Exercice supprimé définitivement" });
   } catch (error) {
     console.error("Erreur lors de la suppression :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+export const getMuscleGroupsForExercise = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const exerciseId = parseInt(req.params.id, 10);
+
+    if (isNaN(exerciseId)) {
+      res.status(400).json({ message: "L'ID de l'exercice est invalide" });
+      return;
+    }
+
+    const exerciseRepo = AppDataSource.getRepository(Exercises);
+    const exercise = await exerciseRepo.findOne({
+      where: { id: exerciseId },
+    });
+
+    if (!exercise) {
+      res.status(404).json({ message: "Exercice non trouvé" });
+      return;
+    }
+
+    let muscleGroups: Categories[] = [];
+    if (exercise.listMuscleGroupIds) {
+      const muscleGroupIds = exercise.listMuscleGroupIds
+        .split(";")
+        .map((id) => parseInt(id.trim(), 10))
+        .filter((id) => !isNaN(id));
+
+      if (muscleGroupIds.length > 0) {
+        muscleGroups = await AppDataSource.getRepository(Categories).find({
+          where: {
+            id: In(muscleGroupIds),
+            categoryType: CategoryType.MUSCLE_GROUP,
+          },
+        });
+      }
+    }
+
+    res.status(200).json({ muscleGroups });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des groupes musculaires :",
+      error
+    );
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
