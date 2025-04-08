@@ -7,6 +7,7 @@ import contactRoutes from "./routes/contact-routes";
 import clientRoutes from "./routes/client-routes";
 import sessionRoutes from "./routes/session-routes";
 import exercisesRoutes from "./routes/exercise-routes";
+import eventRoutes from "./routes/event-routes";
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/sessions", sessionRoutes);
 
 app.use("/api/exercises", exercisesRoutes);
+
+app.use("/api/events", eventRoutes);
 
 // Start server
 app.listen(PORT, () => {

@@ -24,7 +24,7 @@ export class Events {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "varchar", name: "event_category" })
+  @Column({ type: "enum", enum: EventCategory })
   eventCategory: EventCategory;
 
   @Column({ name: "responsible_ids", type: "varchar", nullable: true })
@@ -33,13 +33,13 @@ export class Events {
   @Column({ name: "person_ongoing_ids", type: "varchar", nullable: true })
   personOngoingIds: string;
 
-  @Column()
+  @Column({ type: "text", nullable: true })
   location: string;
 
-  @Column({ type: "date" })
+  @Column({ type: "date", nullable: true })
   date: Date;
 
-  @Column({ type: "time" })
+  @Column({ type: "time", nullable: true })
   time: string;
 
   @Column({ type: "text", nullable: true })
@@ -82,7 +82,7 @@ export class HyperlinkEvent {
 }
 
 @Entity(EventCategory.COACHING)
-export class CoachingEvent extends Events {
+export class CoachingEvent {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -97,7 +97,7 @@ export class CoachingEvent extends Events {
   @Column({ name: "session_id", nullable: true })
   sessionId: number;
 
-  @Column({ nullable: true })
+  @Column({ default: false })
   isDone: boolean;
 
   @Column({ nullable: true })
@@ -114,7 +114,7 @@ export class CoachingEvent extends Events {
 }
 
 @Entity(EventCategory.MEDICAL)
-export class MedicalEvent extends Events {
+export class MedicalEvent {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -124,7 +124,7 @@ export class MedicalEvent extends Events {
 }
 
 @Entity(EventCategory.SPORTING_ACTIVITY)
-export class SportingActivityEvent extends Events {
+export class SportingActivityEvent {
   @PrimaryGeneratedColumn()
   id: number;
 
