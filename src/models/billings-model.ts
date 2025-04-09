@@ -1,23 +1,31 @@
 import {
   Entity,
-  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  PrimaryGeneratedColumn,
+  Unique,
+  Index,
 } from "typeorm";
 import { Objectives } from "./objectives-model";
 
 @Entity("billings")
+@Unique(["objectiveId", "date"])
+@Index("IDX_OBJECTIVE_ID", ["objectiveId"])
 export class Billings {
-  @PrimaryColumn()
-  objectiveId: number;
-
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   billingId: number;
 
-  @PrimaryColumn({ type: "date" })
+  @ManyToOne(() => Objectives, (objectives) => objectives.id)
+  @JoinColumn({ name: "objective_id" })
+  objective: Objectives;
+
+  @Column({ name: "objective_id" })
+  objectiveId: number;
+
+  @Column({ type: "date" })
   date: Date;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
@@ -40,8 +48,4 @@ export class Billings {
 
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
-
-  @ManyToOne(() => Objectives, (objectives) => objectives.id)
-  @JoinColumn({ name: "objective_id" })
-  objective: Objectives;
 }
