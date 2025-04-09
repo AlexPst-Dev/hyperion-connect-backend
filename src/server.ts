@@ -12,6 +12,7 @@ import objectiveRoutes from "./routes/objective-routes";
 import billingsRoutes from "./routes/billing-routes";
 import companiesRoutes from "./routes/company-routes";
 import offersRoutes from "./routes/offer-routes";
+import graphsRoutes from "./routes/graph-routes";
 
 dotenv.config();
 
@@ -57,6 +58,8 @@ app.use("/api/billings", billingsRoutes);
 app.use("/api/companies", companiesRoutes);
 
 app.use("/api/offers", offersRoutes);
+
+app.use("/api/graphs", graphsRoutes);
 
 // Start server
 app.listen(PORT, () => {
