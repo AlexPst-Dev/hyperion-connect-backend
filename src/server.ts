@@ -8,6 +8,7 @@ import clientRoutes from "./routes/client-routes";
 import sessionRoutes from "./routes/session-routes";
 import exercisesRoutes from "./routes/exercise-routes";
 import eventRoutes from "./routes/event-routes";
+import objectiveRoutes from "./routes/objective-routes";
 
 dotenv.config();
 
@@ -45,6 +46,8 @@ app.use("/api/sessions", sessionRoutes);
 app.use("/api/exercises", exercisesRoutes);
 
 app.use("/api/events", eventRoutes);
+
+app.use("/api/objectives", objectiveRoutes);
 
 // Start server
 app.listen(PORT, () => {
