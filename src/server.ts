@@ -13,6 +13,7 @@ import billingsRoutes from "./routes/billing-routes";
 import companiesRoutes from "./routes/company-routes";
 import offersRoutes from "./routes/offer-routes";
 import graphsRoutes from "./routes/graph-routes";
+import fileRoutes from "./routes/file-routes";
 
 dotenv.config();
 
@@ -60,6 +61,8 @@ app.use("/api/companies", companiesRoutes);
 app.use("/api/offers", offersRoutes);
 
 app.use("/api/graphs", graphsRoutes);
+
+app.use("/api/files", fileRoutes);
 
 // Start server
 app.listen(PORT, () => {
