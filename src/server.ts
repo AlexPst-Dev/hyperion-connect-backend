@@ -16,6 +16,7 @@ import graphsRoutes from "./routes/graph-routes";
 import filesRoutes from "./routes/file-routes";
 import notificationsRoutes from "./routes/notification-routes";
 import categoriesRoutes from "./routes/category-routes";
+import subscriptionsRoutes from "./routes/subscription-routes";
 
 dotenv.config();
 
@@ -69,6 +70,8 @@ app.use("/api/files", filesRoutes);
 app.use("/api/notifications", notificationsRoutes);
 
 app.use("/api/categories", categoriesRoutes);
+
+app.use("/api/subscriptions", subscriptionsRoutes);
 
 // Start server
 app.listen(PORT, () => {
