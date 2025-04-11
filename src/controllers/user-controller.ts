@@ -13,6 +13,7 @@ import {
 import { Graphs } from "../models/graphs-model";
 import { Companies } from "../models/companies-model";
 import { In } from "typeorm";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 // Get all users
 export const getAllUsers = async (
@@ -175,7 +176,7 @@ export const getUsersByProfileCategory = async (
 
 // Get subscription thanks to sporstman's user ID
 export const getSubscriptionBySportsmanUserId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -274,7 +275,7 @@ export const getCompanyByPartnerId = async (
 
 // Update user by ID
 export const updateUserById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -310,7 +311,7 @@ export const updateUserById = async (
 
 // Update user with profile by ID
 export const updateUserByProfileAndId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { id, profileCategory } = req.params;
@@ -392,7 +393,7 @@ export const updateUserByProfileAndId = async (
 
 // Delete user by ID
 export const deleteUserById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;

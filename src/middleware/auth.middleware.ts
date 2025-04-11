@@ -27,3 +27,29 @@ export const authenticateToken = (
     return;
   }
 };
+
+export const requireRole = (role: string) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    if (req.user?.role !== role) {
+      res.status(403).json({ message: "Accès interdit" });
+      return;
+    }
+    next();
+  };
+};
+
+export const requireSelfOrAdmin = () => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    const paramId = parseInt(req.params.id);
+    if (req.user?.role === "admin" || req.user?.id === paramId) {
+      next();
+      return;
+    }
+    res.status(403).json({ message: "Accès interdit" });
+    return;
+  };
+};
