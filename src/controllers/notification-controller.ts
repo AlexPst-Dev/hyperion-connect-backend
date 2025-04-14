@@ -4,9 +4,10 @@ import {
   Notifications,
   NotificationCategory,
 } from "../models/notifications-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createNotification = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { notificationCategory, title, text } = req.body;
@@ -83,7 +84,7 @@ export const getNotificationById = async (
 };
 
 export const getNotificationsByCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { category } = req.params;
@@ -111,7 +112,7 @@ export const getNotificationsByCategory = async (
 };
 
 export const updateNotification = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id, 10);
@@ -145,7 +146,7 @@ export const updateNotification = async (
 };
 
 export const deleteNotification = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id, 10);

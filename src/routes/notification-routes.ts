@@ -7,14 +7,38 @@ import {
   updateNotification,
   deleteNotification,
 } from "../controllers/notification-controller";
+import {
+  authenticateToken,
+  requireRole,
+  requireSelfOrAdmin,
+} from "../middleware/auth.middleware";
 
 const router = express.Router();
 
-router.post("/", createNotification);
+// Notification routes
+// Public
 router.get("/", getAllNotifications);
 router.get("/:id", getNotificationById);
-router.get("/category/:category", getNotificationsByCategory);
-router.patch("/:id", updateNotification);
-router.delete("/:id", deleteNotification);
+
+// Private
+router.post("/", authenticateToken, requireRole("admin"), createNotification);
+router.get(
+  "/category/:category",
+  authenticateToken,
+  requireRole("admin"),
+  getNotificationsByCategory
+);
+router.patch(
+  "/:id",
+  authenticateToken,
+  requireRole("admin"),
+  updateNotification
+);
+router.delete(
+  "/:id",
+  authenticateToken,
+  requireRole("admin"),
+  deleteNotification
+);
 
 export default router;
