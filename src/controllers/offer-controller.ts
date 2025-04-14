@@ -4,9 +4,10 @@ import { Offers, OfferCategory } from "../models/offers-model";
 import { DiscountOffer } from "../models/offers-model";
 import { SponsorshipOffer } from "../models/offers-model";
 import { Companies } from "../models/companies-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createOffer = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const {
@@ -285,7 +286,7 @@ export const getOffersByCompanyIdAndCategory = async (
 };
 
 export const updateOffer = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const offerRepo = AppDataSource.getRepository(Offers);
@@ -355,7 +356,7 @@ export const updateOffer = async (
 };
 
 export const deleteOffer = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const offerRepo = AppDataSource.getRepository(Offers);

@@ -8,10 +8,16 @@ import {
   updateOffer,
   deleteOffer,
 } from "../controllers/offer-controller";
+import {
+  authenticateToken,
+  requireRole,
+  requireSelfOrAdmin,
+} from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/", createOffer);
+// Offer routes
+// Public
 router.get("/", getAllOffers);
 router.get("/:id", getOfferById);
 router.get("/company/:companyId", getOffersByCompanyId);
@@ -19,7 +25,15 @@ router.get(
   "/company/:companyId/category/:category",
   getOffersByCompanyIdAndCategory
 );
-router.patch("/:id", updateOffer);
-router.delete("/:id", deleteOffer);
+
+// Private
+router.post("/", authenticateToken, requireRole("admin"), createOffer);
+router.patch(
+  "/:id",
+  authenticateToken,
+  requireRole(["admin", "partner"]),
+  updateOffer
+);
+router.delete("/:id", authenticateToken, requireRole("admin"), deleteOffer);
 
 export default router;
