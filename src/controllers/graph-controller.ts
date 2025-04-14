@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Graphs } from "../models/graphs-model";
 import { ProfileCategory, User } from "../models/users-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createGraph = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const graphRepo = AppDataSource.getRepository(Graphs);
@@ -66,7 +67,7 @@ export const createGraph = async (
 };
 
 export const getAllGraphs = async (
-  _req: Request,
+  _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const graphRepo = AppDataSource.getRepository(Graphs);
@@ -83,7 +84,7 @@ export const getAllGraphs = async (
 };
 
 export const getGraphById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const graphId = parseInt(req.params.id, 10);
@@ -118,7 +119,7 @@ export const getGraphById = async (
 };
 
 export const getGraphsByUserId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const userId = parseInt(req.params.userId, 10);
@@ -158,7 +159,7 @@ export const getGraphsByUserId = async (
 };
 
 export const updateGraphById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const graphId = parseInt(req.params.id, 10);
@@ -209,7 +210,7 @@ export const updateGraphById = async (
 };
 
 export const deleteGraphById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const graphId = parseInt(req.params.id, 10);
