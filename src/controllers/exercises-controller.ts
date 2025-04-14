@@ -4,9 +4,10 @@ import { Exercises } from "../models/exercices-model";
 import { Files } from "../models/files-model";
 import { Categories, CategoryType } from "../models/categories-model";
 import { In } from "typeorm";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createExercice = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -50,7 +51,7 @@ export const createExercice = async (
 };
 
 export const getAllExercices = async (
-  _req: Request,
+  _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -71,7 +72,7 @@ export const getAllExercices = async (
 
 // Return an exercice by ID with its file picture if it exists
 export const getExerciceById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -110,7 +111,7 @@ export const getExerciceById = async (
 };
 
 export const updateExerciceById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const exerciceId = parseInt(req.params.id, 10);
@@ -140,7 +141,7 @@ export const updateExerciceById = async (
 };
 
 export const softDeleteExerciceById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const exerciceId = parseInt(req.params.id, 10);
@@ -167,7 +168,7 @@ export const softDeleteExerciceById = async (
 };
 
 export const deleteExerciceById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const exerciceId = parseInt(req.params.id, 10);
@@ -189,7 +190,7 @@ export const deleteExerciceById = async (
 };
 
 export const getMuscleGroupsForExercise = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
