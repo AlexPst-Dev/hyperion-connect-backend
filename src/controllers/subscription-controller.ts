@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Subscriptions } from "../models/subscription-model";
 import { Files } from "../models/files-model";
+import { Sportsman } from "../models/users-model";
 
 export const getAllSubscriptions = async (
   _: Request,
@@ -46,6 +47,41 @@ export const getSubscriptionById = async (
   } catch (error) {
     console.error("Erreur récupération abonnement :", error);
     res.status(500).json({ message: "Erreur serveur." });
+  }
+};
+
+export const getSubscriptionByUserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userId = parseInt(req.params.userId);
+
+  if (isNaN(userId)) {
+    res.status(400).json({ message: "ID utilisateur invalide" });
+    return;
+  }
+
+  try {
+    const sportsmanRepo = AppDataSource.getRepository(Sportsman);
+
+    const sportsman = await sportsmanRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ["subscription", "subscription.subscriptionFile"],
+    });
+
+    if (!sportsman || !sportsman.subscription) {
+      res
+        .status(404)
+        .json({ message: "Abonnement introuvable pour cet utilisateur" });
+      return;
+    }
+
+    res.json(sportsman.subscription);
+    return;
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'abonnement :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+    return;
   }
 };
 
