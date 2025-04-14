@@ -7,14 +7,29 @@ import {
   updateFile,
   deleteFile,
 } from "../controllers/file-controller";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/", createFile);
-router.get("/", getAllFiles);
+// File routes
+// Public
 router.get("/:id", getFileById);
-router.get("/category/:category", getFilesByCategory);
-router.patch("/:id", updateFile);
-router.delete("/:id", deleteFile);
+
+// Private
+router.post(
+  "/",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
+  createFile
+);
+router.get("/", authenticateToken, requireRole("admin"), getAllFiles);
+router.get(
+  "/category/:category",
+  authenticateToken,
+  requireRole("admin"),
+  getFilesByCategory
+);
+router.patch("/:id", authenticateToken, requireRole("admin"), updateFile);
+router.delete("/:id", authenticateToken, requireRole("admin"), deleteFile);
 
 export default router;

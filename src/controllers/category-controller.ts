@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Categories, CategoryType } from "../models/categories-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { label, backgroundColor, textColor, categoryType } = req.body;
@@ -36,7 +37,7 @@ export const createCategory = async (
 };
 
 export const getAllCategories = async (
-  _: Request,
+  _: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -49,7 +50,7 @@ export const getAllCategories = async (
 };
 
 export const getCategoryById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id, 10);
@@ -77,7 +78,7 @@ export const getCategoryById = async (
 };
 
 export const getCategoriesByType = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { type } = req.params;
@@ -100,7 +101,7 @@ export const getCategoriesByType = async (
 };
 
 export const updateCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id, 10);
@@ -138,7 +139,7 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id, 10);

@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Objectives } from "../models/objectives-model";
 import { ProfileCategory, User } from "../models/users-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createObjective = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const {
@@ -60,7 +61,7 @@ export const createObjective = async (
 };
 
 export const getAllObjectives = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -81,7 +82,7 @@ export const getAllObjectives = async (
 };
 
 export const getObjectiveById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
@@ -114,7 +115,7 @@ export const getObjectiveById = async (
 };
 
 export const getObjectivesBySportsman = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const objectiveRepo = AppDataSource.getRepository(Objectives);
@@ -152,7 +153,7 @@ export const getObjectivesBySportsman = async (
 };
 
 export const getObjectivesByResponsible = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { responsibleId } = req.params;
@@ -182,7 +183,7 @@ export const getObjectivesByResponsible = async (
 };
 
 export const getInactiveObjectivesBySportsman = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { sportsmanId } = req.params;
@@ -223,7 +224,7 @@ export const getInactiveObjectivesBySportsman = async (
 };
 
 export const updateObjective = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
@@ -259,7 +260,7 @@ export const updateObjective = async (
 };
 
 export const deleteObjective = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;

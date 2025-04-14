@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Billings } from "../models/billings-model";
 import { Objectives } from "../models/objectives-model";
-import { In } from "typeorm";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createBilling = async (
   req: Request,
@@ -112,7 +112,6 @@ export const getBillingById = async (
   res: Response
 ): Promise<void> => {
   const billingRepo = AppDataSource.getRepository(Billings);
-
   const { id } = req.params;
 
   try {
@@ -184,51 +183,40 @@ export const getBillingsByObjectiveId = async (
 };
 
 export const getBillingsByUser = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const billingRepo = AppDataSource.getRepository(Billings);
-  const objectiveRepo = AppDataSource.getRepository(Objectives);
-
   const { sportsmanId } = req.params;
 
+  const id = parseInt(sportsmanId);
+
+  if (isNaN(id)) {
+    res
+      .status(400)
+      .json({ message: "L'ID de l'utilisateur n'est pas valide." });
+    return;
+  }
+
+  const isSelf = req.user.role === "sportsman" && req.user.id === id;
+
+  if (!isSelf && req.user.role !== "admin") {
+    res.status(403).json({ message: "Accès interdit." });
+    return;
+  }
+
   try {
-    if (isNaN(parseInt(sportsmanId))) {
-      res
-        .status(400)
-        .json({ message: "L'ID du sportif doit être un nombre valide." });
-      return;
-    }
-
-    const objectives = await objectiveRepo.find({
-      where: { sportsmanId: parseInt(sportsmanId) },
-    });
-
-    if (objectives.length === 0) {
-      res
-        .status(404)
-        .json({ message: "Aucun objectif trouvé pour ce sportif." });
-      return;
-    }
-
     const billings = await billingRepo.find({
-      where: { objectiveId: In(objectives.map((objective) => objective.id)) },
+      where: { objective: { sportsmanId: id } },
       relations: ["objective"],
     });
-
-    if (billings.length === 0) {
-      res
-        .status(404)
-        .json({ message: "Aucune facturation trouvée pour ce sportif." });
-      return;
-    }
 
     res.status(200).json({
       message: "Facturations récupérées avec succès.",
       billings,
     });
   } catch (error) {
-    console.error("Erreur lors de la récupération des facturations:", error);
+    console.error("Erreur lors de la récupération des facturations :", error);
     res.status(500).json({
       message: "Erreur serveur lors de la récupération des facturations.",
     });

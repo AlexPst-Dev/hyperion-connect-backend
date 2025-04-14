@@ -5,9 +5,10 @@ import { Files } from "../models/files-model";
 import { Exercises } from "../models/exercices-model";
 import { In } from "typeorm";
 import { Categories, CategoryType } from "../models/categories-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createSession = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -54,7 +55,7 @@ export const createSession = async (
 };
 
 export const getAllSessions = async (
-  _req: Request,
+  _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -75,7 +76,7 @@ export const getAllSessions = async (
 
 // Return a session by ID with its file picture if it exists
 export const getSessionById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -114,7 +115,7 @@ export const getSessionById = async (
 };
 
 export const updateSessionById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const sessionId = parseInt(req.params.id, 10);
@@ -144,7 +145,7 @@ export const updateSessionById = async (
 };
 
 export const softDeleteSessionById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const sessionId = parseInt(req.params.id, 10);
@@ -171,7 +172,7 @@ export const softDeleteSessionById = async (
 };
 
 export const deleteSessionById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const sessionId = parseInt(req.params.id, 10);
@@ -193,7 +194,7 @@ export const deleteSessionById = async (
 };
 
 export const getExercisesBySessionId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const sessionId = parseInt(req.params.id, 10);

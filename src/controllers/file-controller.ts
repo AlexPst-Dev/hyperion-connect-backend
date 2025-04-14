@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Files, FileCategory } from "../models/files-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createFile = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { label, url, fileCategory } = req.body;
@@ -40,7 +41,7 @@ export const createFile = async (
 };
 
 export const getAllFiles = async (
-  _req: Request,
+  _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const fileRepo = AppDataSource.getRepository(Files);
@@ -89,7 +90,7 @@ export const getFileById = async (
 };
 
 export const getFilesByCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const fileRepo = AppDataSource.getRepository(Files);
@@ -118,7 +119,7 @@ export const getFilesByCategory = async (
 };
 
 export const updateFile = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const fileRepo = AppDataSource.getRepository(Files);
@@ -162,7 +163,7 @@ export const updateFile = async (
 };
 
 export const deleteFile = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const fileRepo = AppDataSource.getRepository(Files);

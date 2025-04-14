@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Client } from "../models/client-model";
 import { User } from "../models/users-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createClientList = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -55,7 +56,7 @@ export const createClientList = async (
 };
 
 export const getClientListByProfessionalId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -92,7 +93,7 @@ export const getClientListByProfessionalId = async (
 };
 
 export const updateClientListByProfessionalId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -177,7 +178,7 @@ export const updateClientListByProfessionalId = async (
 };
 
 export const clearClientListByProfessionalId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {

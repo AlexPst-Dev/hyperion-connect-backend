@@ -8,15 +8,51 @@ import {
   deleteSessionById,
   getExercisesBySessionId,
 } from "../controllers/session-controller";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
-router.post("/", createSession);
-router.get("/", getAllSessions);
-router.get("/:id", getSessionById);
-router.get("/:id/exercises", getExercisesBySessionId);
-router.patch("/:id", updateSessionById);
-router.patch("/:id/archive", softDeleteSessionById);
-router.delete("/:id", deleteSessionById);
+router.post(
+  "/",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic"]),
+  createSession
+);
+router.get(
+  "/",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic"]),
+  getAllSessions
+);
+router.get(
+  "/:id",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman"]),
+  getSessionById
+);
+router.get(
+  "/:id/exercises",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman"]),
+  getExercisesBySessionId
+);
+router.patch(
+  "/:id",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic"]),
+  updateSessionById
+);
+router.patch(
+  "/:id/archive",
+  authenticateToken,
+  requireRole("admin"),
+  softDeleteSessionById
+);
+router.delete(
+  "/:id",
+  authenticateToken,
+  requireRole("admin"),
+  deleteSessionById
+);
 
 export default router;

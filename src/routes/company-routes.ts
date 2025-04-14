@@ -7,14 +7,24 @@ import {
   updateCompany,
   deleteCompany,
 } from "../controllers/company-controller";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/", createCompany);
+// Company routes
+// Public
 router.get("/", getAllCompanies);
 router.get("/:id", getCompanyById);
 router.get("/responsible/:id", getCompanyResponsibleById);
-router.patch("/:id", updateCompany);
-router.delete("/:id", deleteCompany);
+
+// Private
+router.post("/", authenticateToken, requireRole("admin"), createCompany);
+router.patch(
+  "/:id",
+  authenticateToken,
+  requireRole(["admin", "partner"]),
+  updateCompany
+);
+router.delete("/:id", authenticateToken, requireRole("admin"), deleteCompany);
 
 export default router;

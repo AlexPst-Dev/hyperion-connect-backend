@@ -38,7 +38,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.profileCategory);
     res.json({ token });
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);
@@ -173,7 +173,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         break;
     }
     const { password: _, ...userSafe } = savedUser;
-    const token = generateToken(savedUser.id);
+    const token = generateToken(savedUser.id, savedUser.profileCategory);
     res.status(201).json({ message: "User registered", user: userSafe, token });
   } catch (error) {
     console.error("Registration error:", error);
