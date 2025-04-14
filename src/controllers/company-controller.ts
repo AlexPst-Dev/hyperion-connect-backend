@@ -3,9 +3,10 @@ import { AppDataSource } from "../data-source";
 import { Companies } from "../models/companies-model";
 import { User } from "../models/users-model";
 import { Files } from "../models/files-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createCompany = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const companyRepo = AppDataSource.getRepository(Companies);
@@ -177,7 +178,7 @@ export const getCompanyResponsibleById = async (
 };
 
 export const updateCompany = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const companyRepo = AppDataSource.getRepository(Companies);
@@ -214,7 +215,7 @@ export const updateCompany = async (
 };
 
 export const deleteCompany = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const companyRepo = AppDataSource.getRepository(Companies);
