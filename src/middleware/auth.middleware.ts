@@ -50,7 +50,11 @@ export const requireSelfOrAdmin = () => {
     next: NextFunction
   ): void => {
     const paramId = parseInt(
-      req.params.userId || req.params.professionalId || req.params.id
+      req.params.id ||
+        req.params.userId ||
+        req.params.professionalId ||
+        req.params.sportsmanId ||
+        req.params.responsibleId
     );
 
     console.log("Param ID:", paramId);
@@ -72,7 +76,11 @@ export const requireSelf = () => {
     next: NextFunction
   ): void => {
     const paramId = parseInt(
-      req.params.userId || req.params.professionalId || req.params.id
+      req.params.id ||
+        req.params.userId ||
+        req.params.professionalId ||
+        req.params.sportsmanId ||
+        req.params.responsibleId
     );
 
     if (req.user?.id === paramId) {
@@ -85,5 +93,40 @@ export const requireSelf = () => {
         "Accès interdit : vous ne pouvez accéder qu'à vos propres données.",
     });
     return;
+  };
+};
+
+export const requireRoleOrSelf = (allowedRoles: string[]) => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    const userRole = req.user?.role;
+    const userId = req.user?.id;
+    const paramId = parseInt(
+      req.params.id ||
+        req.params.userId ||
+        req.params.professionalId ||
+        req.params.sportsmanId ||
+        req.params.responsibleId
+    );
+
+    if (!userRole) {
+      res.status(403).json({ message: "Accès interdit" });
+      return;
+    }
+
+    if (allowedRoles.includes(userRole)) {
+      next();
+      return;
+    }
+
+    if (userRole === "sportsman" && userId === paramId) {
+      next();
+      return;
+    }
+
+    res.status(403).json({ message: "Accès interdit" });
   };
 };
