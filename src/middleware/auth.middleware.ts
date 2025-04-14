@@ -53,3 +53,24 @@ export const requireSelfOrAdmin = () => {
     return;
   };
 };
+
+export const requireSelf = () => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    const paramId = parseInt(req.params.userId || req.params.id);
+
+    if (req.user?.id === paramId) {
+      next();
+      return;
+    }
+
+    res.status(403).json({
+      message:
+        "Accès interdit : vous ne pouvez accéder qu'à vos propres données.",
+    });
+    return;
+  };
+};
