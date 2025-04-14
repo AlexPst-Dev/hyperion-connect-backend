@@ -5,12 +5,34 @@ import {
   updateClientListByProfessionalId,
   clearClientListByProfessionalId,
 } from "../controllers/client-controller";
+import {
+  authenticateToken,
+  requireRole,
+  requireSelfOrAdmin,
+} from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/", createClientList);
-router.get("/:professionalId", getClientListByProfessionalId);
-router.post("/update/:professionalId", updateClientListByProfessionalId);
-router.delete("/:professionalId", clearClientListByProfessionalId);
+// Client routes
+// Private
+router.post("/", authenticateToken, requireRole("admin"), createClientList);
+router.get(
+  "/:professionalId",
+  authenticateToken,
+  requireSelfOrAdmin(),
+  getClientListByProfessionalId
+);
+router.post(
+  "/update/:professionalId",
+  authenticateToken,
+  requireRole("admin"),
+  updateClientListByProfessionalId
+);
+router.delete(
+  "/:professionalId",
+  authenticateToken,
+  requireRole("admin"),
+  clearClientListByProfessionalId
+);
 
 export default router;
