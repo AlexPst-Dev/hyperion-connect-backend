@@ -28,12 +28,17 @@ export const authenticateToken = (
   }
 };
 
-export const requireRole = (role: string) => {
+export const requireRole = (roles: string | string[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (req.user?.role !== role) {
+    const userRole = req.user?.role;
+
+    const allowedRoles = Array.isArray(roles) ? roles : [roles];
+
+    if (!userRole || !allowedRoles.includes(userRole)) {
       res.status(403).json({ message: "Accès interdit" });
       return;
     }
+
     next();
   };
 };
