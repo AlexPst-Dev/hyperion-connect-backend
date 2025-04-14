@@ -44,7 +44,13 @@ export const requireSelfOrAdmin = () => {
     res: Response,
     next: NextFunction
   ): void => {
-    const paramId = parseInt(req.params.id);
+    const paramId = parseInt(
+      req.params.userId || req.params.professionalId || req.params.id
+    );
+
+    console.log("Param ID:", paramId);
+    console.log("User ID:", req.user?.id);
+
     if (req.user?.role === "admin" || req.user?.id === paramId) {
       next();
       return;
@@ -60,7 +66,9 @@ export const requireSelf = () => {
     res: Response,
     next: NextFunction
   ): void => {
-    const paramId = parseInt(req.params.userId || req.params.id);
+    const paramId = parseInt(
+      req.params.userId || req.params.professionalId || req.params.id
+    );
 
     if (req.user?.id === paramId) {
       next();
