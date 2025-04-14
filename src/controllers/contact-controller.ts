@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Contact } from "../models/contact-model";
 import { User } from "../models/users-model";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export const createContactList = async (
   req: Request,
@@ -93,7 +94,7 @@ export const getContactListByUserId = async (
 };
 
 export const updateContactListByUserId = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
