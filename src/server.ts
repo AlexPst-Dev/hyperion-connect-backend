@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import { AppDataSource } from "./data-source";
 import dotenv from "dotenv";
+
+// Import routes
 import userRoutes from "./routes/user-routes";
 import authRoutes from "./routes/auth-routes";
 import contactRoutes from "./routes/contact-routes";
@@ -18,6 +20,11 @@ import notificationsRoutes from "./routes/notification-routes";
 import categoriesRoutes from "./routes/category-routes";
 import subscriptionsRoutes from "./routes/subscription-routes";
 
+// Import security middleware
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+
 dotenv.config();
 
 const app = express();
@@ -33,8 +40,24 @@ async function testDatabaseConnection() {
   }
 }
 
-// Middleware
+// Middlewares
 app.use(express.json());
+
+app.use(helmet());
+
+app.use(mongoSanitize());
+
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // max requests per windowMs
+    message: {
+      message: "Trop de requêtes. Réessayez plus tard.",
+    },
+    standardHeaders: true, // return RateLimit-* headers
+    legacyHeaders: false,
+  })
+);
 
 // Basic route
 app.get("/", (req: Request, res: Response) => {
