@@ -57,9 +57,6 @@ export const requireSelfOrAdmin = () => {
         req.params.responsibleId
     );
 
-    console.log("Param ID:", paramId);
-    console.log("User ID:", req.user?.id);
-
     if (req.user?.role === "admin" || req.user?.id === paramId) {
       next();
       return;
