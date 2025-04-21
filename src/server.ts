@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import { AppDataSource } from "./data-source";
 import dotenv from "dotenv";
 
 // Import routes
@@ -28,17 +27,6 @@ import mongoSanitize from "express-mongo-sanitize";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Test database connection
-async function testDatabaseConnection() {
-  try {
-    await AppDataSource.initialize();
-    console.log("MySQL connection has been established successfully.");
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-}
 
 // Middlewares
 app.use(express.json());
@@ -64,6 +52,7 @@ app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Welcome to the Express MySQL project with TypeORM!" });
 });
 
+// Routes
 app.use("/api/users", userRoutes);
 
 app.use("/api/auth", authRoutes);
@@ -96,8 +85,4 @@ app.use("/api/categories", categoriesRoutes);
 
 app.use("/api/subscriptions", subscriptionsRoutes);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  testDatabaseConnection();
-});
+export default app;
