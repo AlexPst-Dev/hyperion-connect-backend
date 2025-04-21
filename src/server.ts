@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 
 // Import routes
 import userRoutes from "./routes/user-routes";
@@ -34,6 +35,8 @@ app.use(express.json());
 app.use(helmet());
 
 app.use(mongoSanitize());
+
+app.use(cors());
 
 app.use(
   rateLimit({
