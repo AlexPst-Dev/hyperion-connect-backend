@@ -18,28 +18,35 @@ import { generateToken } from "../utils/jwt";
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       res.status(400).json({ message: "Email et mot de passe requis" });
       return;
     }
-
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOne({ where: { email } });
-
     if (!user) {
       res.status(401).json({ message: "Identifiants invalides" });
       return;
     }
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(401).json({ message: "Identifiants invalides" });
       return;
     }
-
     const token = generateToken(user.id, user.profileCategory);
-    res.json({ token });
+
+    // Renvoyer l'utilisateur ET le token
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        profileCategory: user.profileCategory,
+        imageUrl: user.image,
+      },
+    });
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);
     res.status(500).json({ message: "Erreur serveur" });

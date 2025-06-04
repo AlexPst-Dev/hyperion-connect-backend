@@ -22,8 +22,23 @@ export const getAllUsers = async (
 ): Promise<void> => {
   try {
     const userRepository = AppDataSource.getRepository(User);
-    const users = await userRepository.find();
-    res.status(200).json(users);
+
+    // Parse limit and offset from query, with defaults
+    const limit = parseInt(req.query.limit as string, 10) || 20;
+    const offset = parseInt(req.query.offset as string, 10) || 0;
+
+    const [users, total] = await userRepository.findAndCount({
+      skip: offset,
+      take: limit,
+      order: { id: "ASC" }, // Optional: order by id
+    });
+
+    res.status(200).json({
+      users,
+      total,
+      limit,
+      offset,
+    });
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ message: "Internal server error" });
