@@ -27,6 +27,9 @@ export class Events {
   @Column({ type: "enum", enum: EventCategory })
   eventCategory: EventCategory;
 
+  @Column({ type: "text", nullable: true })
+  title: string;
+
   @Column({ name: "responsible_ids", type: "varchar", nullable: true })
   responsibleIds: string;
 

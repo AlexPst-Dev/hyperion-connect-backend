@@ -39,6 +39,10 @@ export class CreateEventsTable1698734800006 implements MigrationInterface {
             type: "varchar",
           }),
           new TableColumn({
+            name: "title",
+            type: "varchar",
+          }),
+          new TableColumn({
             name: "date",
             type: "date",
           }),

@@ -91,6 +91,7 @@ export const createEvent = async (
     eventCategory,
     responsibleIds,
     personOngoingIds,
+    title,
     location,
     date,
     time,
@@ -111,6 +112,7 @@ export const createEvent = async (
       eventCategory,
       responsibleIds,
       personOngoingIds,
+      title,
       location,
       date,
       time,
@@ -393,6 +395,102 @@ export const getEventUsers = async (
   }
 };
 
+export const getEventsByUserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId } = req.params;
+  if (isNaN(parseInt(userId, 10))) {
+    res.status(400).json({ message: "ID utilisateur invalide" });
+    return;
+  }
+  const userIdStr = String(parseInt(userId, 10));
+  const eventRepo = AppDataSource.getRepository(Events);
+
+  try {
+    // Find events where userId is in responsibleIds or personOngoingIds
+    const events = await eventRepo
+      .createQueryBuilder("event")
+      .where(
+        "(event.responsibleIds LIKE :like1 OR event.responsibleIds LIKE :like2 OR event.responsibleIds LIKE :like3 OR event.responsibleIds = :exact1)",
+        {
+          like1: `${userIdStr};%`,
+          like2: `%;${userIdStr};%`,
+          like3: `%;${userIdStr}`,
+          exact1: userIdStr,
+        }
+      )
+      .orWhere(
+        "(event.personOngoingIds LIKE :like4 OR event.personOngoingIds LIKE :like5 OR event.personOngoingIds LIKE :like6 OR event.personOngoingIds = :exact2)",
+        {
+          like4: `${userIdStr};%`,
+          like5: `%;${userIdStr};%`,
+          like6: `%;${userIdStr}`,
+          exact2: userIdStr,
+        }
+      )
+      .getMany();
+
+    // Fetch specific event details as in getAllEvents
+    const hyperionEventsRepo = AppDataSource.getRepository(HyperionEvent);
+    const hyperlinkEventsRepo = AppDataSource.getRepository(HyperlinkEvent);
+    const coachingEventsRepo = AppDataSource.getRepository(CoachingEvent);
+    const medicalEventsRepo = AppDataSource.getRepository(MedicalEvent);
+    const sportingActivityEventsRepo = AppDataSource.getRepository(
+      SportingActivityEvent
+    );
+
+    const eventsWithDetails = await Promise.all(
+      events.map(async (event) => {
+        let specificEvent: any = null;
+        switch (event.eventCategory) {
+          case EventCategory.HYPERION:
+            specificEvent = await hyperionEventsRepo.findOne({
+              where: { id: event.id },
+            });
+            break;
+          case EventCategory.HYPERLINK:
+            specificEvent = await hyperlinkEventsRepo.findOne({
+              where: { id: event.id },
+            });
+            break;
+          case EventCategory.COACHING:
+            specificEvent = await coachingEventsRepo.findOne({
+              where: { id: event.id },
+            });
+            break;
+          case EventCategory.MEDICAL:
+            specificEvent = await medicalEventsRepo.findOne({
+              where: { id: event.id },
+            });
+            break;
+          case EventCategory.SPORTING_ACTIVITY:
+            specificEvent = await sportingActivityEventsRepo.findOne({
+              where: { id: event.id },
+            });
+            break;
+          default:
+            break;
+        }
+        return {
+          ...event,
+          specificEvent,
+        };
+      })
+    );
+
+    res.status(200).json({ events: eventsWithDetails });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des événements par utilisateur :",
+      error
+    );
+    res.status(500).json({
+      message: "Erreur serveur lors de la récupération des événements",
+    });
+  }
+};
+
 export const updateEvent = async (
   req: Request,
   res: Response
@@ -421,6 +519,7 @@ export const updateEvent = async (
   const {
     responsibleIds,
     personOngoingIds,
+    title,
     location,
     date,
     time,
@@ -435,6 +534,7 @@ export const updateEvent = async (
   event.location = location ?? event.location;
   event.date = date ?? event.date;
   event.time = time ?? event.time;
+  event.title = title ?? event.title;
   event.description = description ?? event.description;
   event.link = link ?? event.link;
   event.isActive = isActive ?? event.isActive;
