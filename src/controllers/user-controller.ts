@@ -154,26 +154,31 @@ export const getUsersByProfileCategory = async (
       case ProfileCategory.COACH:
         profiles = await AppDataSource.getRepository(Coach).find({
           where: { user: { id: In(userIds) } },
+          relations: ["user"],
         });
         break;
       case ProfileCategory.MEDIC:
         profiles = await AppDataSource.getRepository(Medic).find({
           where: { user: { id: In(userIds) } },
+          relations: ["user"],
         });
         break;
       case ProfileCategory.FREE:
         profiles = await AppDataSource.getRepository(Free).find({
           where: { user: { id: In(userIds) } },
+          relations: ["user"],
         });
         break;
       case ProfileCategory.PARTNER:
         profiles = await AppDataSource.getRepository(Partner).find({
           where: { user: { id: In(userIds) } },
+          relations: ["user"],
         });
         break;
       case ProfileCategory.ADMIN:
         profiles = await AppDataSource.getRepository(Admin).find({
           where: { user: { id: In(userIds) } },
+          relations: ["user"],
         });
         break;
     }
