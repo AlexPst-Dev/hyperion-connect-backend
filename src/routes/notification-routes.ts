@@ -25,7 +25,6 @@ router.post("/", authenticateToken, requireRole("admin"), createNotification);
 router.get(
   "/category/:category",
   authenticateToken,
-  requireRole("admin"),
   getNotificationsByCategory
 );
 router.patch(
