@@ -9,6 +9,7 @@ import {
   updateUserById,
   updateUserByProfileAndId,
   deleteUserById,
+  createNewUserWithProfile,
 } from "../controllers/user-controller";
 import {
   authenticateToken,
@@ -38,6 +39,12 @@ router.patch(
   authenticateToken,
   requireSelfOrAdmin(),
   updateUserByProfileAndId
+);
+router.post(
+  "/",
+  authenticateToken,
+  requireRole("admin"),
+  createNewUserWithProfile
 );
 router.delete("/:id", authenticateToken, requireRole("admin"), deleteUserById);
 export default router;

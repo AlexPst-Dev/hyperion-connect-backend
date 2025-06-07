@@ -15,7 +15,7 @@ import { Objectives } from "./objectives-model";
 @Unique(["objectiveId", "date"])
 @Index("IDX_OBJECTIVE_ID", ["objectiveId"])
 export class Billings {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: "billing_id" })
   billingId: number;
 
   @ManyToOne(() => Objectives, (objectives) => objectives.id)
@@ -28,19 +28,25 @@ export class Billings {
   @Column({ type: "date" })
   date: Date;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 })
+  @Column({ name: "global_amount", type: "decimal", precision: 10, scale: 2 })
   globalAmount: number;
 
-  @Column({ default: false })
+  @Column({ name: "is_monthly", default: false })
   isMonthly: boolean;
 
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    name: "monthly_amount",
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   monthlyAmount: number;
 
-  @Column({ default: false })
+  @Column({ name: "payment_received", default: false })
   paymentReceived: boolean;
 
-  @Column({ default: true })
+  @Column({ name: "is_active", default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: "created_at" })

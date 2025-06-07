@@ -14,6 +14,8 @@ import { Graphs } from "../models/graphs-model";
 import { Companies } from "../models/companies-model";
 import { In } from "typeorm";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 // Get all users
 export const getAllUsers = async (
@@ -123,11 +125,17 @@ export const getUsersByProfileCategory = async (
       return;
     }
 
+    // Parse limit and offset from query, with defaults
+    const limit = parseInt(req.query.limit as string, 10) || 20;
+    const offset = parseInt(req.query.offset as string, 10) || 0;
+
     const userRepository = AppDataSource.getRepository(User);
-    const users = await userRepository.find({
+    const [users, total] = await userRepository.findAndCount({
+      skip: offset,
+      take: limit,
       where: { profileCategory: category as ProfileCategory },
+      order: { id: "ASC" },
     });
-    const userIds = users.map((user) => user.id);
 
     if (users.length === 0) {
       res
@@ -135,6 +143,8 @@ export const getUsersByProfileCategory = async (
         .json({ message: "Aucun utilisateur trouvé pour cette catégorie" });
       return;
     }
+
+    const userIds = users.map((user) => user.id);
 
     let profiles:
       | Sportsman[]
@@ -183,17 +193,22 @@ export const getUsersByProfileCategory = async (
         break;
     }
 
-    const result = users.map((user) => ({
-      profile: profiles.find((p) => p.user.id === user.id) || null,
+    // Combine user and profile in the response
+    const result = profiles.map((profile) => ({
+      profile,
     }));
 
-    res.status(200).json(result);
+    res.status(200).json({
+      users: result,
+      total,
+      limit,
+      offset,
+    });
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
-
 // Get subscription thanks to sporstman's user ID
 export const getSubscriptionBySportsmanUserId = async (
   req: AuthenticatedRequest,
@@ -407,6 +422,154 @@ export const updateUserByProfileAndId = async (
     }
   } catch (err) {
     console.error("Update error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Create a new user with profile
+export const createNewUserWithProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userRepo = AppDataSource.getRepository(User);
+    const sportsmanRepo = AppDataSource.getRepository(Sportsman);
+    const coachRepo = AppDataSource.getRepository(Coach);
+    const medicRepo = AppDataSource.getRepository(Medic);
+    const freeRepo = AppDataSource.getRepository(Free);
+    const partnerRepo = AppDataSource.getRepository(Partner);
+    const adminRepo = AppDataSource.getRepository(Admin);
+
+    // Extract user fields and profile fields
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      street,
+      city,
+      postalCode,
+      description,
+      image,
+      birthDate,
+      stravaLink,
+      facebookLink,
+      instagramLink,
+      linkedinLink,
+      tiktokLink,
+      youtubeLink,
+      isActive,
+      profileCategory,
+      profile, // profile-specific fields (object)
+    } = req.body;
+
+    // Check if email already exists
+    const existingUser = await userRepo.findOne({ where: { email } });
+    if (existingUser) {
+      res.status(400).json({ message: "Email already exists" });
+      return;
+    }
+
+    // Generate a temporary password if not provided
+    let userPassword = password;
+    let isTempPassword = false;
+    if (!userPassword) {
+      userPassword = crypto.randomBytes(8).toString("hex"); // 16 chars
+      isTempPassword = true;
+    }
+    const hashedPassword = await bcrypt.hash(userPassword, 10);
+
+    // Create user
+    const newUser = userRepo.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      phone,
+      street,
+      city,
+      postalCode,
+      description,
+      image,
+      birthDate,
+      stravaLink,
+      facebookLink,
+      instagramLink,
+      linkedinLink,
+      tiktokLink,
+      youtubeLink,
+      isActive,
+      profileCategory,
+    });
+
+    const savedUser = await userRepo.save(newUser);
+
+    // Create profile based on category
+    let createdProfile = null;
+    switch (profileCategory) {
+      case ProfileCategory.SPORTSMAN:
+        createdProfile = sportsmanRepo.create({
+          user: savedUser,
+          sportCategoryId: profile?.sportCategoryId || null,
+          availableDays: profile?.availableDays || null,
+          availableTime: profile?.availableTime || null,
+          listMedicNotes: profile?.listMedicNotes || null,
+          listMedicFiles: profile?.listMedicFiles || null,
+          listMedicsIds: profile?.listMedicsIds || null,
+          graphId: profile?.graphId || null,
+          subscriptionId: profile?.subscriptionId || null,
+        });
+        await sportsmanRepo.save(createdProfile);
+        break;
+      case ProfileCategory.COACH:
+        createdProfile = coachRepo.create({
+          user: savedUser,
+          sportCategoryId: profile?.sportCategoryId || null,
+          canImportSessions: profile?.canImportSessions || false,
+        });
+        await coachRepo.save(createdProfile);
+        break;
+      case ProfileCategory.MEDIC:
+        createdProfile = medicRepo.create({
+          user: savedUser,
+          medicCategoryId: profile?.medicCategoryId || null,
+          canImportSessions: profile?.canImportSessions || false,
+        });
+        await medicRepo.save(createdProfile);
+        break;
+      case ProfileCategory.FREE:
+        createdProfile = freeRepo.create({
+          user: savedUser,
+        });
+        await freeRepo.save(createdProfile);
+        break;
+      case ProfileCategory.PARTNER:
+        createdProfile = partnerRepo.create({
+          user: savedUser,
+          companyId: profile?.companyId || null,
+        });
+        await partnerRepo.save(createdProfile);
+        break;
+      case ProfileCategory.ADMIN:
+        createdProfile = adminRepo.create({
+          user: savedUser,
+        });
+        await adminRepo.save(createdProfile);
+        break;
+      default:
+        res.status(400).json({ message: "Invalid profile category" });
+        return;
+    }
+
+    res.status(201).json({
+      message: "User and profile created successfully",
+      user: savedUser,
+      profile: createdProfile,
+      tempPassword: isTempPassword ? userPassword : undefined,
+    });
+  } catch (error) {
+    console.error("Error creating user and profile:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

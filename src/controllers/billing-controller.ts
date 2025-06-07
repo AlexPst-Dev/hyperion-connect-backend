@@ -12,6 +12,7 @@ export const createBilling = async (
   const objectiveRepo = AppDataSource.getRepository(Objectives);
 
   const {
+    billingId,
     objectiveId,
     date,
     globalAmount,
@@ -55,6 +56,7 @@ export const createBilling = async (
     }
 
     const newBilling = billingRepo.create({
+      billingId,
       objectiveId,
       date,
       globalAmount,
