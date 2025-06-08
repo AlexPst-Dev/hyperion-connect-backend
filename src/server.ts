@@ -19,6 +19,7 @@ import filesRoutes from "./routes/file-routes";
 import notificationsRoutes from "./routes/notification-routes";
 import categoriesRoutes from "./routes/category-routes";
 import subscriptionsRoutes from "./routes/subscription-routes";
+import linkedSessionRoutes from "./routes/linked-sessions-routes";
 
 // Import security middleware
 import helmet from "helmet";
@@ -87,5 +88,7 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/categories", categoriesRoutes);
 
 app.use("/api/subscriptions", subscriptionsRoutes);
+
+app.use("/api/linkedSessions", linkedSessionRoutes);
 
 export default app;

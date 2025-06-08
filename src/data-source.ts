@@ -32,6 +32,7 @@ import { Files } from "./models/files-model";
 import { Notifications } from "./models/notifications-model";
 import { Categories } from "./models/categories-model";
 import { Subscriptions } from "./models/subscription-model";
+import { LinkedSessions } from "./models/linked-sessions-model";
 
 import {
   CreateUserMigration1698734800000,
@@ -58,6 +59,7 @@ import { CreateFilesTable1698734800010 } from "./migrations/files-migration";
 import { CreateNotificationsTable1698734800011 } from "./migrations/notifications-migration";
 import { CreateCategoriesTable1698734800012 } from "./migrations/categories-migration";
 import { CreateSubscriptionsTable1698734800013 } from "./migrations/subscription-migration";
+import { CreateLinkedSessionsTable169878480467 } from "./migrations/linked-sessions-migration";
 
 import * as dotenv from "dotenv";
 
@@ -103,6 +105,7 @@ export const AppDataSource = new DataSource({
     Notifications,
     Categories,
     Subscriptions,
+    LinkedSessions,
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -124,6 +127,7 @@ export const AppDataSource = new DataSource({
     UpdateSessionsTable1698734800017,
     UpdateExercisesTable1698734800018,
     UpdateSportsmanMigration1698734800017,
+    CreateLinkedSessionsTable169878480467,
   ],
   subscribers: [],
 });
