@@ -16,7 +16,7 @@ export enum EventCategory {
   HYPERLINK = "hyperlink_event",
   MEDICAL = "medical_event",
   COACHING = "coaching_event",
-  SPORTING_ACTIVITY = "sporting_activity",
+  SPORTING_ACTIVITY = "sporting_activity_event",
 }
 
 @Entity("events")
@@ -135,6 +135,6 @@ export class SportingActivityEvent {
   @JoinColumn({ name: "event_id" })
   event: Events;
 
-  @Column({ nullable: true })
+  @Column({ name: "max_participants", nullable: true })
   maxParticipants: number;
 }
