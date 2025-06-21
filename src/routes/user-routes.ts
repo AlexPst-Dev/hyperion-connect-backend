@@ -33,7 +33,7 @@ router.get(
   requireSelfOrAdmin(),
   getSubscriptionBySportsmanUserId
 );
-router.put("/:id", authenticateToken, requireRole("admin"), updateUserById);
+router.put("/:id", authenticateToken, requireSelfOrAdmin(), updateUserById);
 router.patch(
   "/:id/:profileCategory",
   authenticateToken,
