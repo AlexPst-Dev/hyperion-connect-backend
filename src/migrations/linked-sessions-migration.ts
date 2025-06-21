@@ -22,7 +22,7 @@ export class CreateLinkedSessionsTable169878480467
             generationStrategy: "increment",
           }),
           new TableColumn({
-            name: "sportsman_id",
+            name: "user_id",
             type: "int",
           }),
           new TableColumn({
@@ -37,9 +37,9 @@ export class CreateLinkedSessionsTable169878480467
     await queryRunner.createForeignKey(
       "linked_sessions",
       new TableForeignKey({
-        columnNames: ["sportsman_id"],
+        columnNames: ["user_id"],
         referencedColumnNames: ["id"],
-        referencedTableName: "sportsman",
+        referencedTableName: "user",
         onDelete: "CASCADE",
       })
     );
@@ -57,7 +57,7 @@ export class CreateLinkedSessionsTable169878480467
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable("linked_sessions");
     const foreignKeySporstman = table?.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf("sportsman_id") !== -1
+      (fk) => fk.columnNames.indexOf("user_id") !== -1
     );
     const foreignKeySession = table?.foreignKeys.find(
       (fk) => fk.columnNames.indexOf("session_id") !== -1

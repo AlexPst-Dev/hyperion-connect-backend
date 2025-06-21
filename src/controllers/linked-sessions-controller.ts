@@ -8,14 +8,12 @@ export const createLinkedSession = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { sportsmanId, sessionId } = req.body;
-    if (!sportsmanId || !sessionId) {
-      res
-        .status(400)
-        .json({ message: "sportsmanId and sessionId are required" });
+    const { userId, sessionId } = req.body;
+    if (!userId || !sessionId) {
+      res.status(400).json({ message: "userId and sessionId are required" });
     }
     const repo = AppDataSource.getRepository(LinkedSessions);
-    const linkedSession = repo.create({ sportsmanId, sessionId });
+    const linkedSession = repo.create({ userId, sessionId });
     const saved = await repo.save(linkedSession);
     res.status(201).json(saved);
   } catch (error) {
@@ -62,14 +60,14 @@ export const updateLinkedSession = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const { sportsmanId, sessionId } = req.body;
+    const { userId, sessionId } = req.body;
     const repo = AppDataSource.getRepository(LinkedSessions);
     const linkedSession = await repo.findOne({ where: { id: Number(id) } });
     if (!linkedSession) {
       res.status(404).json({ message: "Linked session not found" });
       return;
     }
-    linkedSession.sportsmanId = sportsmanId ?? linkedSession.sportsmanId;
+    linkedSession.userId = userId ?? linkedSession.userId;
     linkedSession.sessionId = sessionId ?? linkedSession.sessionId;
     const updated = await repo.save(linkedSession);
     res.status(200).json(updated);
