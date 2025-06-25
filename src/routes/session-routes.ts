@@ -51,7 +51,7 @@ router.patch(
 router.delete(
   "/:id",
   authenticateToken,
-  requireRole("admin"),
+  requireRole(["admin", "coach", "medic"]),
   deleteSessionById
 );
 

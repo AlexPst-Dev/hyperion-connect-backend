@@ -14,6 +14,7 @@ import {
 import {
   authenticateToken,
   requireRole,
+  requireRoleOrSelf,
   requireSelfOrAdmin,
 } from "../middleware/auth.middleware";
 
@@ -37,7 +38,7 @@ router.put("/:id", authenticateToken, requireSelfOrAdmin(), updateUserById);
 router.patch(
   "/:id/:profileCategory",
   authenticateToken,
-  requireSelfOrAdmin(),
+  requireRoleOrSelf(["admin", "coach", "medic"]),
   updateUserByProfileAndId
 );
 router.post(

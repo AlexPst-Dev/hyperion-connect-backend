@@ -29,7 +29,7 @@ router.get(
   requireRole("admin"),
   getFilesByCategory
 );
-router.patch("/:id", authenticateToken, requireRole("admin"), updateFile);
+router.patch("/:id", authenticateToken, updateFile);
 router.delete("/:id", authenticateToken, requireRole("admin"), deleteFile);
 
 export default router;
