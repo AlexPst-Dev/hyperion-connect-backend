@@ -37,7 +37,7 @@ router.get(
 router.patch(
   "/:id",
   authenticateToken,
-  requireRole(["admin", "coach"]),
+  requireRoleOrSelf(["admin", "coach"]),
   updateGraphById
 );
 router.delete("/:id", authenticateToken, requireRole("admin"), deleteGraphById);

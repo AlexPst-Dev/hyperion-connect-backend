@@ -86,7 +86,7 @@ export const getExerciceById = async (
     const fileRepo = AppDataSource.getRepository(Files);
 
     const exercice = await exerciceRepo.findOne({
-      where: { id: exerciceId, isActive: true },
+      where: { id: exerciceId },
     });
 
     if (!exercice) {

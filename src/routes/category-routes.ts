@@ -27,7 +27,7 @@ router.get(
 router.get(
   "/type/:type",
   authenticateToken,
-  requireRole(["admin", "coach", "medic"]),
+  requireRole(["admin", "coach", "medic", "sportsman"]),
   getCategoriesByType
 );
 router.patch("/:id", authenticateToken, requireRole("admin"), updateCategory);

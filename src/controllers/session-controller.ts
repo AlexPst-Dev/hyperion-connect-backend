@@ -90,7 +90,7 @@ export const getSessionById = async (
     const fileRepo = AppDataSource.getRepository(Files);
 
     const session = await sessionRepo.findOne({
-      where: { id: sessionId, isActive: true },
+      where: { id: sessionId },
     });
 
     if (!session) {

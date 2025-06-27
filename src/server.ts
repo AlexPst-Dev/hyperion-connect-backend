@@ -42,7 +42,7 @@ app.use(cors());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // max requests per windowMs
+    max: 7000, // max requests per windowMs
     message: {
       message: "Trop de requêtes. Réessayez plus tard.",
     },
