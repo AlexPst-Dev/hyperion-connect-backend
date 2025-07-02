@@ -22,6 +22,7 @@ export class CreateCompaniesTable1698734800008 implements MigrationInterface {
           new TableColumn({
             name: "responsible_id",
             type: "int",
+            isNullable: true,
           }),
           new TableColumn({
             name: "name",
