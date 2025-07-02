@@ -20,7 +20,7 @@ export class Companies {
   @JoinColumn({ name: "responsible_id" })
   responsible: User;
 
-  @Column({ name: "responsible_id" })
+  @Column({ name: "responsible_id", nullable: true })
   responsibleId: number;
 
   @Column()
