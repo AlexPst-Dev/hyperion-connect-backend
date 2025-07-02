@@ -83,6 +83,9 @@ export class User {
   @Column({ name: "is_active", nullable: false, default: true })
   isActive: boolean;
 
+  @Column({ name: "is_in_hyperlink_network", nullable: false, default: false })
+  isInHyperlinkNetwork: boolean;
+
   @Column({ type: "enum", enum: ProfileCategory })
   profileCategory: ProfileCategory;
 

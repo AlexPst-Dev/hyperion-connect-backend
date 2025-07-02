@@ -460,6 +460,7 @@ export const createNewUserWithProfile = async (
       tiktokLink,
       youtubeLink,
       isActive,
+      isInHyperlinkNetwork,
       profileCategory,
       profile, // profile-specific fields (object)
     } = req.body;
@@ -500,6 +501,7 @@ export const createNewUserWithProfile = async (
       tiktokLink,
       youtubeLink,
       isActive,
+      isInHyperlinkNetwork,
       profileCategory,
     });
 

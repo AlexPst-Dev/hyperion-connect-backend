@@ -112,6 +112,11 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
             default: true,
           }),
           new TableColumn({
+            name: "is_in_hyperlink_network",
+            type: "boolean",
+            default: false,
+          }),
+          new TableColumn({
             name: "created_at",
             type: "timestamp",
             default: "CURRENT_TIMESTAMP",
