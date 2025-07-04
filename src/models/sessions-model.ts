@@ -8,6 +8,7 @@ import {
   ManyToOne,
 } from "typeorm";
 import { Files } from "./files-model";
+import { User } from "./users-model";
 
 @Entity("sessions")
 export class Sessions {
@@ -41,6 +42,13 @@ export class Sessions {
 
   @Column({ default: false })
   done: boolean;
+
+  @ManyToOne(() => User, (user) => user.id)
+  @JoinColumn({ name: "author_id" })
+  author: User;
+
+  @Column({ name: "author_id", nullable: true })
+  authorId: number;
 
   @Column({ default: true })
   isActive: boolean;

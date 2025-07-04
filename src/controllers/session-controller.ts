@@ -22,6 +22,7 @@ export const createSession = async (
       listExercises,
       recommendations,
       contributions,
+      authorId,
     } = req.body;
 
     if (!label || !numberOfExercises || !durationTime) {
@@ -40,6 +41,7 @@ export const createSession = async (
       recommendations: recommendations || null,
       contributions: contributions || null,
       done: false,
+      authorId: authorId || null,
       isActive: true,
     });
 

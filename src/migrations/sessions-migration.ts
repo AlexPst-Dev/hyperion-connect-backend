@@ -57,6 +57,11 @@ export class CreateSessionsTable1698734800002 implements MigrationInterface {
             default: false,
           }),
           new TableColumn({
+            name: "author_id",
+            type: "int",
+            isNullable: true,
+          }),
+          new TableColumn({
             name: "is_active",
             type: "boolean",
             default: true,
@@ -83,13 +88,22 @@ export class CreateSessionsTable1698734800002 implements MigrationInterface {
 }
 export class UpdateSessionsTable1698734800017 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Add foreign key for sessions.file_picture_id
+    // Add foreign key for sessions.file_picture_id and sessions.author_id
     await queryRunner.createForeignKey(
       "sessions",
       new TableForeignKey({
         columnNames: ["file_picture_id"],
         referencedColumnNames: ["id"],
         referencedTableName: "files",
+        onDelete: "SET NULL",
+      })
+    );
+    await queryRunner.createForeignKey(
+      "sessions",
+      new TableForeignKey({
+        columnNames: ["author_id"],
+        referencedColumnNames: ["id"],
+        referencedTableName: "users",
         onDelete: "SET NULL",
       })
     );
@@ -100,11 +114,12 @@ export class UpdateSessionsTable1698734800017 implements MigrationInterface {
     if (!table) {
       throw new Error("Table 'sessions' not found.");
     }
-    const foreignKey = table.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf("file_picture_id") !== -1
-    );
-    if (foreignKey) {
-      await queryRunner.dropForeignKey("sessions", foreignKey);
+    if (table) {
+      const foreignKeys = table.foreignKeys;
+
+      for (const foreignKey of foreignKeys) {
+        await queryRunner.dropForeignKey("sessions", foreignKey);
+      }
     }
   }
 }
