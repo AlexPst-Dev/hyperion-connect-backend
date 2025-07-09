@@ -16,6 +16,7 @@ import { In } from "typeorm";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { Files } from "../models/files-model";
 
 // Get all users
 export const getAllUsers = async (
@@ -61,10 +62,17 @@ export const getUserById = async (
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOne({ where: { id: userId } });
 
+    const fileRepo = AppDataSource.getRepository(Files);
+
     if (!user) {
       res.status(404).json({ message: "Utilisateur non trouvé" });
     } else {
       let profile = null;
+      let file = null;
+
+      if (user.filePictureId) {
+        file = await fileRepo.findOne({ where: { id: user.filePictureId } });
+      }
 
       switch (user.profileCategory) {
         case ProfileCategory.SPORTSMAN:
@@ -103,6 +111,7 @@ export const getUserById = async (
 
       res.status(200).json({
         user,
+        filePicture: file || null,
         profile,
       });
     }
@@ -451,7 +460,7 @@ export const createNewUserWithProfile = async (
       city,
       postalCode,
       description,
-      image,
+      filePictureId,
       birthDate,
       stravaLink,
       facebookLink,
@@ -492,7 +501,7 @@ export const createNewUserWithProfile = async (
       city,
       postalCode,
       description,
-      image,
+      filePictureId,
       birthDate,
       stravaLink,
       facebookLink,

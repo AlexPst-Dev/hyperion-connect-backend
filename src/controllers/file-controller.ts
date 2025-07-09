@@ -178,6 +178,88 @@ function getContentType(ext: string): string {
       return "application/octet-stream";
   }
 }
+export const serveImage = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  const fileId = parseInt(id, 10);
+
+  if (isNaN(fileId)) {
+    res.status(400).json({
+      message: "L'identifiant du fichier doit être un nombre valide.",
+    });
+    return;
+  }
+
+  const fileRepo = AppDataSource.getRepository(Files);
+
+  try {
+    const file = await fileRepo.findOneBy({
+      id: fileId,
+      fileCategory: FileCategory.IMAGE,
+    });
+
+    if (!file) {
+      res.status(404).json({ message: "Image non trouvée." });
+      return;
+    }
+
+    const filePath = path.join(
+      "src",
+      "uploads",
+      `user-${req.user.id}`,
+      "images",
+      file.physicalName
+    );
+
+    // Vérifier si le fichier existe
+    if (!fs.existsSync(filePath)) {
+      res.status(404).json({ message: "Fichier image non trouvé." });
+      return;
+    }
+
+    // Déterminer le type MIME
+    const ext = path.extname(file.physicalName).toLowerCase();
+    const mimeType = getImageMimeType(ext);
+
+    // Servir l'image
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache d'1 an
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Authorization, Content-Type"
+    );
+    res.sendFile(path.resolve(filePath));
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'image :", error);
+    res.status(500).json({
+      message: "Erreur serveur lors de la récupération de l'image.",
+    });
+  }
+};
+
+// Fonction utilitaire pour les types MIME des images
+function getImageMimeType(ext: string): string {
+  switch (ext) {
+    case ".jpg":
+    case ".jpeg":
+      return "image/jpeg";
+    case ".png":
+      return "image/png";
+    case ".gif":
+      return "image/gif";
+    case ".webp":
+      return "image/webp";
+    case ".svg":
+      return "image/svg+xml";
+    default:
+      return "image/jpeg"; // Par défaut
+  }
+}
 
 export const getAllFiles = async (
   _req: AuthenticatedRequest,
@@ -323,9 +405,43 @@ export const deleteFile = async (
       return;
     }
 
+    // Supprimer le fichier physique s'il existe
+    let physicalFileDeleted = false;
+    if (file.url && file.fileCategory === FileCategory.IMAGE) {
+      // Construire le chemin physique à partir de l'URL
+      const physicalPath = path.join("src", file.url);
+
+      try {
+        // Vérifier si le fichier existe
+        if (fs.existsSync(physicalPath)) {
+          // Supprimer le fichier physique
+          fs.unlinkSync(physicalPath);
+          physicalFileDeleted = true;
+          console.log(`Fichier physique supprimé: ${physicalPath}`);
+        } else {
+          console.log(`Fichier physique introuvable: ${physicalPath}`);
+        }
+      } catch (fileError) {
+        console.error(
+          `Erreur lors de la suppression du fichier physique: ${physicalPath}`,
+          fileError
+        );
+        // On continue quand même pour supprimer l'enregistrement en base
+      }
+    }
+
+    // Supprimer l'enregistrement en base de données
     await fileRepo.remove(file);
 
-    res.status(200).json({ message: "Fichier supprimé avec succès." });
+    // Message de réponse adapté
+    const message = physicalFileDeleted
+      ? "Fichier et enregistrement supprimés avec succès."
+      : "Enregistrement supprimé avec succès (fichier physique introuvable).";
+
+    res.status(200).json({
+      message,
+      physicalFileDeleted,
+    });
   } catch (error) {
     console.error("Erreur lors de la suppression du fichier :", error);
     res

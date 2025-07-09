@@ -7,13 +7,20 @@ import {
   updateFile,
   deleteFile,
   downloadFile,
+  serveImage,
 } from "../controllers/file-controller";
-import { authenticateToken, requireRole } from "../middleware/auth.middleware";
+import {
+  authenticateToken,
+  requireRole,
+  requireRoleOrSelf,
+  requireSelfOrAdmin,
+} from "../middleware/auth.middleware";
 import {
   handleMulterError,
   moveFileToCorrectFolder,
   upload,
 } from "../middleware/multer.middleware";
+import { corsForImages } from "../middleware/corsForImages.middleware";
 
 const router = Router();
 
@@ -37,6 +44,14 @@ router.get(
   requireRole(["admin", "coach", "medic", "sportsman"]),
   downloadFile
 );
+router.options("/image/:id", corsForImages);
+router.get(
+  "/image/:id",
+  corsForImages,
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman"]),
+  serveImage
+);
 router.get("/", authenticateToken, requireRole("admin"), getAllFiles);
 router.get(
   "/category/:category",
@@ -45,6 +60,11 @@ router.get(
   getFilesByCategory
 );
 router.patch("/:id", authenticateToken, updateFile);
-router.delete("/:id", authenticateToken, requireRole("admin"), deleteFile);
+router.delete(
+  "/:id",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman"]),
+  deleteFile
+);
 
 export default router;

@@ -44,7 +44,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         lastName: user.lastName,
         email: user.email,
         profileCategory: user.profileCategory,
-        imageUrl: user.image,
+        imageUrl: user.filePicture ? user.filePicture.url : "",
       },
     });
   } catch (error) {
@@ -74,7 +74,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       city,
       postalCode,
       description,
-      image,
+      filePictureId,
       birthDate,
       stravaLink,
       facebookLink,
@@ -105,7 +105,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       city,
       postalCode,
       description,
-      image,
+      filePictureId,
       birthDate,
       stravaLink,
       facebookLink,

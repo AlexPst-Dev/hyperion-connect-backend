@@ -67,8 +67,8 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
             isNullable: true,
           }),
           new TableColumn({
-            name: "image",
-            type: "varchar",
+            name: "file_picture_id",
+            type: "int",
             isNullable: true,
           }),
           new TableColumn({
@@ -344,6 +344,16 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
 
 export class UpdateUserMigration1698734800016 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createForeignKey(
+      "users",
+      new TableForeignKey({
+        columnNames: ["file_picture_id"],
+        referencedColumnNames: ["id"],
+        referencedTableName: "files",
+        onDelete: "SET NULL",
+      })
+    );
+
     // Add foreign key for sportsman.sport_category
     await queryRunner.createForeignKey(
       "sportsman",

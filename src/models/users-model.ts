@@ -14,6 +14,7 @@ import { Categories } from "./categories-model";
 import { Subscriptions } from "./subscription-model";
 import { Graphs } from "./graphs-model";
 import { Companies } from "./companies-model";
+import { Files } from "./files-model";
 
 export enum ProfileCategory {
   SPORTSMAN = "sportsman",
@@ -56,8 +57,12 @@ export class User {
   @Column({ type: "text", nullable: true })
   description: string;
 
-  @Column({ nullable: true })
-  image: string;
+  @ManyToOne(() => Files, (file) => file.id)
+  @JoinColumn({ name: "file_picture_id" })
+  filePicture: Files;
+
+  @Column({ name: "file_picture_id", nullable: true })
+  filePictureId: number;
 
   @Column({ name: "birth_date", type: "date", nullable: true })
   birthDate: Date;
