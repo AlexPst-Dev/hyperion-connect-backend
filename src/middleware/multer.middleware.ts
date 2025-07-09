@@ -63,6 +63,9 @@ export const moveFileToCorrectFolder = (req: any, res: any, next: any) => {
     case FileCategory.MEDICAL_FILE:
       subfolder = "medical";
       break;
+    case FileCategory.USER_FILE:
+      subfolder = "files";
+      break;
     case FileCategory.SUBSCRIPTION:
       subfolder = "subscriptions";
       break;

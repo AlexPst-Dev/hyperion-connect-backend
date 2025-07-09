@@ -29,7 +29,13 @@ export class CreateFilesTable1698734800010 implements MigrationInterface {
           new TableColumn({
             name: "file_category",
             type: "enum",
-            enum: ["IMAGE", "MEDICAL_FILE", "SESSION_IMPORTED", "SUBSCRIPTION"],
+            enum: [
+              "IMAGE",
+              "MEDICAL_FILE",
+              "USER_FILE",
+              "SESSION_IMPORTED",
+              "SUBSCRIPTION",
+            ],
           }),
           new TableColumn({
             name: "created_at",
