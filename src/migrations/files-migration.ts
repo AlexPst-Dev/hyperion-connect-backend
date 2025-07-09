@@ -18,6 +18,11 @@ export class CreateFilesTable1698734800010 implements MigrationInterface {
             type: "varchar",
           }),
           new TableColumn({
+            name: "physicalName",
+            type: "varchar",
+            isNullable: true,
+          }),
+          new TableColumn({
             name: "url",
             type: "varchar",
           }),

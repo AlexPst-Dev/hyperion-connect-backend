@@ -21,6 +21,9 @@ export class Files {
   @Column()
   label: string;
 
+  @Column({ nullable: true })
+  physicalName: string;
+
   @Column()
   url: string;
 
