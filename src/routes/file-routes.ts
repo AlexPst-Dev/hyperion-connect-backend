@@ -8,6 +8,7 @@ import {
   deleteFile,
   downloadFile,
   serveImage,
+  serveCompanyImage,
 } from "../controllers/file-controller";
 import {
   authenticateToken,
@@ -41,7 +42,7 @@ router.post(
 router.get(
   "/download/:id",
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   downloadFile
 );
 router.options("/image/:id", corsForImages);
@@ -49,8 +50,16 @@ router.get(
   "/image/:id",
   corsForImages,
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   serveImage
+);
+router.options("/companyImage/:id", corsForImages);
+router.get(
+  "/companyImage/:id",
+  corsForImages,
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
+  serveCompanyImage
 );
 router.get("/", authenticateToken, requireRole("admin"), getAllFiles);
 router.get(
@@ -63,7 +72,7 @@ router.patch("/:id", authenticateToken, updateFile);
 router.delete(
   "/:id",
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   deleteFile
 );
 

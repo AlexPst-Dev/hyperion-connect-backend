@@ -49,60 +49,91 @@ export const moveFileToCorrectFolder = (req: any, res: any, next: any) => {
     return next();
   }
 
-  const userId = req.user?.id;
-  const fileCategory = req.body.fileCategory;
+  try {
+    const { uploadToASpecificId, companyId, fileCategory } = req.body;
 
-  let subfolder = "";
-  switch (fileCategory) {
-    case FileCategory.SESSION_IMPORTED:
-      subfolder = "sessions";
-      break;
-    case FileCategory.IMAGE:
-      subfolder = "images";
-      break;
-    case FileCategory.MEDICAL_FILE:
-      subfolder = "medical";
-      break;
-    case FileCategory.USER_FILE:
-      subfolder = "files";
-      break;
-    case FileCategory.SUBSCRIPTION:
-      subfolder = "subscriptions";
-      break;
-    default:
-      subfolder = "";
-  }
-
-  const userFolder = userId ? `user-${userId}` : "anonymous";
-  const finalDestination = path.join(
-    __dirname,
-    "../uploads",
-    userFolder,
-    subfolder
-  );
-
-  // Créer le dossier de destination s'il n'existe pas
-  if (!fs.existsSync(finalDestination)) {
-    fs.mkdirSync(finalDestination, { recursive: true });
-  }
-
-  const tempPath = req.file.path;
-  const finalPath = path.join(finalDestination, req.file.filename);
-
-  // Déplacer le fichier
-  fs.rename(tempPath, finalPath, (err) => {
-    if (err) {
-      console.error("Erreur lors du déplacement du fichier:", err);
-      return res
-        .status(500)
-        .json({ message: "Erreur lors du traitement du fichier" });
+    // Validation des paramètres
+    if (!fileCategory) {
+      return res.status(400).json({
+        message: "La catégorie du fichier est requise",
+      });
     }
 
-    // Mettre à jour le path dans req.file
-    req.file.path = finalPath;
-    req.file.destination = finalDestination;
-    next();
-  });
+    // Déterminer le dossier principal avec validation
+    let mainFolder = "";
+    let folderType = "";
+    let folderId = "";
+
+    if (companyId) {
+      mainFolder = `company-${companyId}`;
+      folderType = "company";
+      folderId = companyId;
+    } else if (uploadToASpecificId) {
+      mainFolder = `user-${uploadToASpecificId}`;
+      folderType = "user";
+      folderId = uploadToASpecificId;
+    } else if (req.user?.id) {
+      mainFolder = `user-${req.user.id}`;
+      folderType = "user";
+      folderId = req.user.id;
+    } else {
+      return res.status(400).json({
+        message: "Impossible de déterminer le dossier de destination",
+      });
+    }
+
+    // Déterminer le sous-dossier
+    const subfolderMap: Record<FileCategory, string> = {
+      [FileCategory.SESSION_IMPORTED]: "sessions",
+      [FileCategory.IMAGE]: "images",
+      [FileCategory.MEDICAL_FILE]: "medical",
+      [FileCategory.USER_FILE]: "files",
+      [FileCategory.SUBSCRIPTION]: "subscriptions",
+    };
+
+    const subfolder = subfolderMap[fileCategory as FileCategory] || "";
+
+    // Construire le chemin final
+    const finalDestination = path.join(
+      __dirname,
+      "../uploads",
+      mainFolder,
+      subfolder
+    );
+
+    // Créer le dossier de destination s'il n'existe pas
+    if (!fs.existsSync(finalDestination)) {
+      fs.mkdirSync(finalDestination, { recursive: true });
+    }
+
+    const tempPath = req.file.path;
+    const finalPath = path.join(finalDestination, req.file.filename);
+
+    // Déplacer le fichier
+    fs.rename(tempPath, finalPath, (err) => {
+      if (err) {
+        console.error("Erreur lors du déplacement du fichier:", err);
+        return res.status(500).json({
+          message: "Erreur lors du traitement du fichier",
+          error:
+            process.env.NODE_ENV === "development" ? err.message : undefined,
+        });
+      }
+
+      // Mettre à jour les informations du fichier
+      req.file.path = finalPath;
+      req.file.destination = finalDestination;
+      req.file.folderType = folderType;
+      req.file.folderId = folderId;
+
+      next();
+    });
+  } catch (error) {
+    console.error("Erreur dans moveFileToCorrectFolder:", error);
+    return res.status(500).json({
+      message: "Erreur interne du serveur",
+    });
+  }
 };
 
 // Middleware de gestion d'erreurs pour multer

@@ -38,7 +38,7 @@ router.put("/:id", authenticateToken, requireSelfOrAdmin(), updateUserById);
 router.patch(
   "/:id/:profileCategory",
   authenticateToken,
-  requireRoleOrSelf(["admin", "coach", "medic"]),
+  requireRoleOrSelf(["admin", "coach", "medic", "partner"]),
   updateUserByProfileAndId
 );
 router.post(

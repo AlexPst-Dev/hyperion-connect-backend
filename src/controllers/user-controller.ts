@@ -528,6 +528,7 @@ export const createNewUserWithProfile = async (
           listMedicNotes: profile?.listMedicNotes || null,
           listMedicFiles: profile?.listMedicFiles || null,
           listMedicsIds: profile?.listMedicsIds || null,
+          listUserFiles: profile?.listUserFiles || null,
           graphId: profile?.graphId || null,
           subscriptionId: profile?.subscriptionId || null,
         });

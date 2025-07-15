@@ -132,6 +132,9 @@ export class Sportsman {
   @Column({ name: "list_medics_ids", nullable: true })
   listMedicsIds: string;
 
+  @Column({ name: "list_user_files", nullable: true })
+  listUserFiles: string;
+
   @OneToOne(() => Graphs, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "graph_id" })
   graph: Graphs;

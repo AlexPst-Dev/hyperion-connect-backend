@@ -173,6 +173,11 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
             isNullable: true,
           }),
           new TableColumn({
+            name: "list_user_files",
+            type: "varchar",
+            isNullable: true,
+          }),
+          new TableColumn({
             name: "graph_id",
             type: "int",
             isNullable: true,

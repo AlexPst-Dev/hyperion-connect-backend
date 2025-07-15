@@ -4,12 +4,13 @@ import { Files, FileCategory } from "../models/files-model";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import path from "path";
 import fs from "fs";
+import { Companies } from "../models/companies-model";
 
 export const createFile = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { label, fileCategory } = req.body;
+  const { label, fileCategory, uploadToASpecificId, companyId } = req.body;
   const file = req.file;
 
   if (!label) {
@@ -50,11 +51,31 @@ export const createFile = async (
     if (req.user) {
       switch (fileCategory) {
         case FileCategory.SESSION_IMPORTED:
-          conditionalUrl = `/uploads/user-${req.user.id}/sessions/${file.filename}`;
+          conditionalUrl = `/uploads/user-${
+            uploadToASpecificId ? uploadToASpecificId : req.user.id
+          }/sessions/${file.filename}`;
           physicalFileName = file.filename;
           break;
         case FileCategory.IMAGE:
-          conditionalUrl = `/uploads/user-${req.user.id}/images/${file.filename}`;
+          if (companyId) {
+            conditionalUrl = `/uploads/company-${companyId}/images/${file.filename}`;
+          } else {
+            conditionalUrl = `/uploads/user-${
+              uploadToASpecificId ? uploadToASpecificId : req.user.id
+            }/images/${file.filename}`;
+          }
+          physicalFileName = file.filename;
+          break;
+        case FileCategory.MEDICAL_FILE:
+          conditionalUrl = `/uploads/user-${
+            uploadToASpecificId ? uploadToASpecificId : req.user.id
+          }/medical/${file.filename}`;
+          physicalFileName = file.filename;
+          break;
+        case FileCategory.USER_FILE:
+          conditionalUrl = `/uploads/user-${
+            uploadToASpecificId ? uploadToASpecificId : req.user.id
+          }/files/${file.filename}`;
           physicalFileName = file.filename;
           break;
         default:
@@ -83,8 +104,10 @@ export const downloadFile = async (
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
-  const fileId = parseInt(id, 10);
+  // Utiliser query parameter au lieu de req.body
+  const { targetUserId } = req.query;
 
+  const fileId = parseInt(id, 10);
   if (isNaN(fileId)) {
     res.status(400).json({
       message: "L'identifiant du fichier doit être un nombre valide.",
@@ -96,9 +119,18 @@ export const downloadFile = async (
 
   try {
     const file = await fileRepo.findOneBy({ id: fileId });
-
     if (!file) {
       res.status(404).json({ message: "Fichier non trouvé." });
+      return;
+    }
+
+    // Déterminer l'ID utilisateur cible
+    const downloadFromUserId = targetUserId
+      ? parseInt(targetUserId as string, 10)
+      : req.user?.id;
+
+    if (!downloadFromUserId) {
+      res.status(400).json({ message: "ID utilisateur non déterminé." });
       return;
     }
 
@@ -107,28 +139,58 @@ export const downloadFile = async (
     switch (file.fileCategory) {
       case FileCategory.SESSION_IMPORTED:
         filePath = path.join(
-          "src",
-          "uploads",
-          `user-${req.user.id}`,
+          __dirname,
+          "../uploads",
+          `user-${downloadFromUserId}`,
           "sessions",
           file.physicalName
         );
         break;
       case FileCategory.IMAGE:
         filePath = path.join(
-          "src",
-          "uploads",
-          `user-${req.user.id}`,
+          __dirname,
+          "../uploads",
+          `user-${downloadFromUserId}`,
           "images",
           file.physicalName
         );
         break;
+      case FileCategory.USER_FILE:
+        filePath = path.join(
+          __dirname,
+          "../uploads",
+          `user-${downloadFromUserId}`,
+          "files",
+          file.physicalName
+        );
+        break;
+      case FileCategory.MEDICAL_FILE:
+        filePath = path.join(
+          __dirname,
+          "../uploads",
+          `user-${downloadFromUserId}`,
+          "medical",
+          file.physicalName
+        );
+        break;
+      case FileCategory.SUBSCRIPTION:
+        filePath = path.join(
+          __dirname,
+          "../uploads",
+          `user-${downloadFromUserId}`,
+          "subscriptions",
+          file.physicalName
+        );
+        break;
       default:
-        filePath = path.join("src", "uploads", file.physicalName);
+        filePath = path.join(__dirname, "../uploads", file.physicalName);
     }
+
+    console.log("Chemin du fichier:", filePath);
 
     // Vérifier si le fichier existe
     if (!fs.existsSync(filePath)) {
+      console.error("Fichier physique non trouvé:", filePath);
       res.status(404).json({ message: "Fichier physique non trouvé." });
       return;
     }
@@ -152,6 +214,8 @@ export const downloadFile = async (
             .status(500)
             .json({ message: "Erreur lors du téléchargement du fichier." });
         }
+      } else {
+        console.log("Fichier téléchargé avec succès:", file.label);
       }
     });
   } catch (error) {
@@ -238,6 +302,82 @@ export const serveImage = async (
     console.error("Erreur lors de la récupération de l'image :", error);
     res.status(500).json({
       message: "Erreur serveur lors de la récupération de l'image.",
+    });
+  }
+};
+export const serveCompanyImage = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+
+  if (isNaN(Number(id))) {
+    res.status(400).json({
+      message: "L'identifiant de l'entreprise doit être un nombre valide.",
+    });
+    return;
+  }
+
+  const companyRepo = AppDataSource.getRepository(Companies);
+   const companySearched = await companyRepo.findOne({
+     where: { id: Number(id) },
+     relations: ["fileImageCompany"],
+   });
+
+  const fileRepo = AppDataSource.getRepository(Files);
+
+  console.log(companySearched);
+
+  if (companySearched?.fileImageCompany) {
+    try {
+      const file = await fileRepo.findOneBy({
+        id: companySearched.fileImageCompany.id,
+        fileCategory: FileCategory.IMAGE,
+      });
+
+      if (!file) {
+        res.status(404).json({ message: "Image non trouvée." });
+        return;
+      }
+
+      const filePath = path.join(
+        "src",
+        "uploads",
+        `company-${id}`,
+        "images",
+        file.physicalName
+      );
+
+      // Vérifier si le fichier existe
+      if (!fs.existsSync(filePath)) {
+        res.status(404).json({ message: "Fichier image non trouvé." });
+        return;
+      }
+
+      // Déterminer le type MIME
+      const ext = path.extname(file.physicalName).toLowerCase();
+      const mimeType = getImageMimeType(ext);
+
+      // Servir l'image
+      res.setHeader("Content-Type", mimeType);
+      res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache d'1 an
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Authorization, Content-Type"
+      );
+      res.sendFile(path.resolve(filePath));
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'image :", error);
+      res.status(500).json({
+        message: "Erreur serveur lors de la récupération de l'image.",
+      });
+    }
+  } else {
+    res.status(404).json({
+      message: "L'entreprise n'a pas pu être trouvée.",
     });
   }
 };
@@ -407,9 +547,15 @@ export const deleteFile = async (
 
     // Supprimer le fichier physique s'il existe
     let physicalFileDeleted = false;
-    if (file.url && file.fileCategory === FileCategory.IMAGE) {
+    if (
+      file.url &&
+      (file.fileCategory === FileCategory.IMAGE ||
+        file.fileCategory === FileCategory.USER_FILE ||
+        file.fileCategory === FileCategory.MEDICAL_FILE)
+    ) {
       // Construire le chemin physique à partir de l'URL
       const physicalPath = path.join("src", file.url);
+      console.log(physicalPath);
 
       try {
         // Vérifier si le fichier existe
