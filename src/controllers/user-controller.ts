@@ -60,7 +60,33 @@ export const getUserById = async (
     }
 
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { id: userId } });
+    const user = await userRepository.findOne({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        firstName: true,
+        lastName: true,
+        profileCategory: true,
+        filePictureId: true,
+        postalCode: true,
+        street: true,
+        city: true,
+        description: true,
+        birthDate: true,
+        stravaLink: true,
+        facebookLink: true,
+        instagramLink: true,
+        linkedinLink: true,
+        tiktokLink: true,
+        youtubeLink: true,
+        isActive: true,
+        isInHyperlinkNetwork: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     const fileRepo = AppDataSource.getRepository(Files);
 
