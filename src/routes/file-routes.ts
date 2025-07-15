@@ -65,7 +65,7 @@ router.get("/", authenticateToken, requireRole("admin"), getAllFiles);
 router.get(
   "/category/:category",
   authenticateToken,
-  requireRole("admin"),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   getFilesByCategory
 );
 router.patch("/:id", authenticateToken, updateFile);
