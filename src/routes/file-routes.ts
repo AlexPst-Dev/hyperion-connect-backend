@@ -50,7 +50,7 @@ router.get(
   "/image/:id",
   corsForImages,
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   serveImage
 );
 router.options("/companyImage/:id", corsForImages);
@@ -58,7 +58,7 @@ router.get(
   "/companyImage/:id",
   corsForImages,
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   serveCompanyImage
 );
 router.get("/", authenticateToken, requireRole("admin"), getAllFiles);
