@@ -10,7 +10,7 @@ export const createFile = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { label, fileCategory, uploadToASpecificId, companyId } = req.body;
+  const { label, url, fileCategory, uploadToASpecificId, companyId } = req.body;
   const file = req.file;
 
   if (!label) {
@@ -24,12 +24,6 @@ export const createFile = async (
     res
       .status(400)
       .json({ message: "La catégorie de fichier est obligatoire." });
-    return;
-  }
-
-  if (!file) {
-    console.log("Erreur: Fichier manquant");
-    res.status(400).json({ message: "Le fichier est obligatoire." });
     return;
   }
 
@@ -48,7 +42,7 @@ export const createFile = async (
     let conditionalUrl: string = "";
     let physicalFileName: string = "";
 
-    if (req.user) {
+    if (req.user && file && !url) {
       switch (fileCategory) {
         case FileCategory.SESSION_IMPORTED:
           conditionalUrl = `/uploads/user-${
@@ -78,19 +72,33 @@ export const createFile = async (
           }/files/${file.filename}`;
           physicalFileName = file.filename;
           break;
+        case FileCategory.SUBSCRIPTION:
+          conditionalUrl = `/uploads/user-${
+            uploadToASpecificId ? uploadToASpecificId : req.user.id
+          }/subscriptions/${file.filename}`;
+          physicalFileName = file.filename;
+          break;
         default:
           conditionalUrl = `/uploads/${file.filename}`;
           physicalFileName = file.filename;
       }
-    }
-    const newFile = new Files();
-    newFile.label = label;
-    newFile.physicalName = physicalFileName;
-    newFile.url = conditionalUrl;
-    newFile.fileCategory = fileCategory;
+      const newFile = new Files();
+      newFile.label = label;
+      newFile.physicalName = physicalFileName;
+      newFile.url = conditionalUrl;
+      newFile.fileCategory = fileCategory;
 
-    const savedFile = await fileRepo.save(newFile);
-    res.status(201).json(savedFile);
+      const savedFile = await fileRepo.save(newFile);
+      res.status(201).json(savedFile);
+    } else {
+      const newFile = new Files();
+      newFile.label = label;
+      newFile.url = url;
+      newFile.fileCategory = fileCategory;
+
+      const savedFile = await fileRepo.save(newFile);
+      res.status(201).json(savedFile);
+    }
   } catch (error) {
     console.error("Erreur lors de la création du fichier :", error);
     res
@@ -319,10 +327,10 @@ export const serveCompanyImage = async (
   }
 
   const companyRepo = AppDataSource.getRepository(Companies);
-   const companySearched = await companyRepo.findOne({
-     where: { id: Number(id) },
-     relations: ["fileImageCompany"],
-   });
+  const companySearched = await companyRepo.findOne({
+    where: { id: Number(id) },
+    relations: ["fileImageCompany"],
+  });
 
   const fileRepo = AppDataSource.getRepository(Files);
 
