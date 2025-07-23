@@ -142,11 +142,6 @@ export class CreateEventsTable1698734800006 implements MigrationInterface {
             type: "varchar",
             isNullable: true,
           }),
-          new TableColumn({
-            name: "coach_note",
-            type: "varchar",
-            isNullable: true,
-          }),
         ],
         foreignKeys: [
           new TableForeignKey({

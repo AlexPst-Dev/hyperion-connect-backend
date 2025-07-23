@@ -146,7 +146,6 @@ export const createEvent = async (
           sportsmanComment: specificEventData.sportsmanComment || null,
           sportsmanNote: specificEventData.sportsmanNote || null,
           coachComment: specificEventData.coachComment || null,
-          coachNote: specificEventData.coachNote || null,
         });
         await coachingEventsRepo.save(specificEvent);
         break;
@@ -446,31 +445,34 @@ export const getEventsByUserId = async (
         switch (event.eventCategory) {
           case EventCategory.HYPERION:
             specificEvent = await hyperionEventsRepo.findOne({
-              where: { id: event.id },
+              where: { event: { id: event.id } },
             });
             break;
           case EventCategory.HYPERLINK:
             specificEvent = await hyperlinkEventsRepo.findOne({
-              where: { id: event.id },
+              where: { event: { id: event.id } },
             });
             break;
           case EventCategory.COACHING:
             specificEvent = await coachingEventsRepo.findOne({
-              where: { id: event.id },
+              where: { event: { id: event.id } },
             });
             break;
           case EventCategory.MEDICAL:
             specificEvent = await medicalEventsRepo.findOne({
-              where: { id: event.id },
+              where: { event: { id: event.id } },
             });
             break;
           case EventCategory.SPORTING_ACTIVITY:
             specificEvent = await sportingActivityEventsRepo.findOne({
-              where: { id: event.id },
+              where: { event: { id: event.id } },
             });
             break;
           default:
             break;
+        }
+        if (specificEvent && "event" in specificEvent) {
+          delete (specificEvent as any).event;
         }
         return {
           ...event,
@@ -569,7 +571,6 @@ export const updateEvent = async (
             specificEventData.sportsmanNote ?? child.sportsmanNote;
           child.coachComment =
             specificEventData.coachComment ?? child.coachComment;
-          child.coachNote = specificEventData.coachNote ?? child.coachNote;
           await repo.save(child);
         }
         break;
