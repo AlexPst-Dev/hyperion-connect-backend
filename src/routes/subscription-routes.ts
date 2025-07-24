@@ -19,7 +19,7 @@ router.get("/", authenticateToken, requireRole("admin"), getAllSubscriptions);
 router.get(
   "/:id",
   authenticateToken,
-  requireRole(["admin", "coach"]),
+  requireRole(["admin", "coach", "medic"]),
   getSubscriptionById
 );
 router.get(
