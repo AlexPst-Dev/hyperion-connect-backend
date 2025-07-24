@@ -187,6 +187,11 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
             type: "int",
             isNullable: true,
           }),
+          new TableColumn({
+            name: "trackingFile_url",
+            type: "varchar",
+            isNullable: true,
+          }),
         ],
         foreignKeys: [
           new TableForeignKey({

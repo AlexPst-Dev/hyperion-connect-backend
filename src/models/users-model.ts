@@ -148,6 +148,9 @@ export class Sportsman {
 
   @Column({ name: "subscription_id", nullable: true })
   subscriptionId: number;
+
+  @Column({ name: "trackingFile_url", nullable: true })
+  trackingFileUrl: string;
 }
 
 @Entity(ProfileCategory.COACH)
