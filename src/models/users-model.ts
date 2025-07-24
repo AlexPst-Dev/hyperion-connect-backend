@@ -8,6 +8,8 @@ import {
   JoinColumn,
   PrimaryColumn,
   OneToOne,
+  JoinTable,
+  ManyToMany,
 } from "typeorm";
 
 import { Categories } from "./categories-model";
@@ -162,12 +164,13 @@ export class Coach {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @ManyToOne(() => Categories, (category) => category.id)
-  @JoinColumn({ name: "sport_category" })
-  sportCategory: Categories;
-
-  @Column({ name: "sport_category", nullable: true })
-  sportCategoryId: number;
+  @ManyToMany(() => Categories)
+  @JoinTable({
+    name: "coach_categories",
+    joinColumn: { name: "coach_id", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "category_id", referencedColumnName: "id" },
+  })
+  sportCategories: Categories[];
 
   @Column({ name: "can_import_sessions", default: false })
   canImportSessions: boolean;
@@ -182,12 +185,13 @@ export class Medic {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @ManyToOne(() => Categories, (category) => category.id)
-  @JoinColumn({ name: "medic_category" })
-  medicCategory: Categories;
-
-  @Column({ name: "medic_category", nullable: true })
-  medicCategoryId: number;
+  @ManyToMany(() => Categories)
+  @JoinTable({
+    name: "medic_categories",
+    joinColumn: { name: "medic_id", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "category_id", referencedColumnName: "id" },
+  })
+  sportCategories: Categories[];
 
   @Column({ name: "can_import_sessions", default: false })
   canImportSessions: boolean;

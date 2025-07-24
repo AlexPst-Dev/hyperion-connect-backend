@@ -215,11 +215,6 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
             isPrimary: true,
           }),
           new TableColumn({
-            name: "sport_category",
-            type: "int",
-            isNullable: true,
-          }),
-          new TableColumn({
             name: "can_import_sessions",
             type: "boolean",
             default: false,
@@ -247,11 +242,6 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
             isPrimary: true,
           }),
           new TableColumn({
-            name: "medic_category",
-            type: "int",
-            isNullable: true,
-          }),
-          new TableColumn({
             name: "can_import_sessions",
             type: "boolean",
             default: false,
@@ -268,10 +258,76 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
       true
     );
 
+    await queryRunner.createTable(
+      new Table({
+        name: "coach_categories",
+        columns: [
+          new TableColumn({
+            name: "coach_id",
+            type: "int",
+            isPrimary: true,
+          }),
+          new TableColumn({
+            name: "category_id",
+            type: "int",
+            isPrimary: true,
+          }),
+        ],
+        foreignKeys: [
+          new TableForeignKey({
+            columnNames: ["coach_id"],
+            referencedTableName: "coach",
+            referencedColumnNames: ["id"],
+            onDelete: "CASCADE",
+          }),
+          new TableForeignKey({
+            columnNames: ["category_id"],
+            referencedTableName: "categories",
+            referencedColumnNames: ["id"],
+            onDelete: "CASCADE",
+          }),
+        ],
+      }),
+      true
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: "medic_categories",
+        columns: [
+          new TableColumn({
+            name: "medic_id",
+            type: "int",
+            isPrimary: true,
+          }),
+          new TableColumn({
+            name: "category_id",
+            type: "int",
+            isPrimary: true,
+          }),
+        ],
+        foreignKeys: [
+          new TableForeignKey({
+            columnNames: ["medic_id"],
+            referencedTableName: "medic",
+            referencedColumnNames: ["id"],
+            onDelete: "CASCADE",
+          }),
+          new TableForeignKey({
+            columnNames: ["category_id"],
+            referencedTableName: "categories",
+            referencedColumnNames: ["id"],
+            onDelete: "CASCADE",
+          }),
+        ],
+      }),
+      true
+    );
+
     // Create the free_user table
     await queryRunner.createTable(
       new Table({
-        name: "free_user",
+        name: "free",
         columns: [
           new TableColumn({
             name: "id",
@@ -349,6 +405,8 @@ export class CreateUserMigration1698734800000 implements MigrationInterface {
     await queryRunner.dropTable("coach");
     await queryRunner.dropTable("sportsman");
     await queryRunner.dropTable("users");
+    await queryRunner.dropTable("medic_categories");
+    await queryRunner.dropTable("coach_categories");
   }
 }
 

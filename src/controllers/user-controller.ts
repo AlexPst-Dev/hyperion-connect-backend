@@ -17,6 +17,7 @@ import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Files } from "../models/files-model";
+import { Categories } from "../models/categories-model";
 
 // Get all users
 export const getAllUsers = async (
@@ -109,11 +110,13 @@ export const getUserById = async (
         case ProfileCategory.COACH:
           profile = await AppDataSource.getRepository(Coach).findOne({
             where: { user: { id: userId } },
+            relations: ["sportCategories"],
           });
           break;
         case ProfileCategory.MEDIC:
           profile = await AppDataSource.getRepository(Medic).findOne({
             where: { user: { id: userId } },
+            relations: ["sportCategories"],
           });
           break;
         case ProfileCategory.FREE:
@@ -561,17 +564,29 @@ export const createNewUserWithProfile = async (
         await sportsmanRepo.save(createdProfile);
         break;
       case ProfileCategory.COACH:
+        const coachCategoryIds = profile?.sportCategoryIds || [];
+        const coachCategoriesRepo = AppDataSource.getRepository(Categories);
+        const coachCategories = coachCategoryIds.length
+          ? await coachCategoriesRepo.findBy({ id: In(coachCategoryIds) })
+          : [];
+
         createdProfile = coachRepo.create({
           user: savedUser,
-          sportCategoryId: profile?.sportCategoryId || null,
+          sportCategories: coachCategories,
           canImportSessions: profile?.canImportSessions || false,
         });
         await coachRepo.save(createdProfile);
         break;
       case ProfileCategory.MEDIC:
+        const categoryIds = profile?.medicCategoryIds || [];
+        const categoriesRepo = AppDataSource.getRepository(Categories);
+        const categories = categoryIds.length
+          ? await categoriesRepo.findBy({ id: In(categoryIds) })
+          : [];
+
         createdProfile = medicRepo.create({
           user: savedUser,
-          medicCategoryId: profile?.medicCategoryId || null,
+          sportCategories: categories,
           canImportSessions: profile?.canImportSessions || false,
         });
         await medicRepo.save(createdProfile);
