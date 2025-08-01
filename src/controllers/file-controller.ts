@@ -277,16 +277,11 @@ export const serveImage = async (
       return;
     }
 
-    const filePath = path.join(
-      "src",
-      "uploads",
-      `user-${req.user.id}`,
-      "images",
-      file.physicalName
-    );
+    const filePath = path.join("src", file.url);
 
     // Vérifier si le fichier existe
     if (!fs.existsSync(filePath)) {
+      console.log(filePath);
       res.status(404).json({ message: "Fichier image non trouvé." });
       return;
     }
@@ -333,8 +328,6 @@ export const serveCompanyImage = async (
   });
 
   const fileRepo = AppDataSource.getRepository(Files);
-
-  console.log(companySearched);
 
   if (companySearched?.fileImageCompany) {
     try {

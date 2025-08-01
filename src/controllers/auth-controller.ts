@@ -139,7 +139,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       case ProfileCategory.COACH:
         profile = coachRepo.create({
           user: savedUser,
-          sportCategoryId: profileData.sportCategoryId || null,
+          sportCategories: profileData.sportCategories || null,
           canImportSessions: profileData.canImportSessions || false,
         });
         await coachRepo.save(profile);
@@ -148,7 +148,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       case ProfileCategory.MEDIC:
         profile = medicRepo.create({
           user: savedUser,
-          medicCategoryId: profileData.medicCategoryId || null,
+          sportCategories: profileData.sportCategories || null,
           canImportSessions: profileData.canImportSessions || false,
         });
         await medicRepo.save(profile);

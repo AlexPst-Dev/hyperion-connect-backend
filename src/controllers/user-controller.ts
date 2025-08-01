@@ -723,3 +723,83 @@ export const deleteUserById = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const deleteCurrentUser = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const userId = req.user.id;
+  const userRepo = AppDataSource.getRepository(User);
+
+  try {
+    const user = await userRepo.findOneBy({ id: userId });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const profileCategory = user.profileCategory;
+    switch (profileCategory) {
+      case ProfileCategory.SPORTSMAN: {
+        const sportsmanRepo = AppDataSource.getRepository(Sportsman);
+        const graphRepo = AppDataSource.getRepository(Graphs);
+        const sportsman = await sportsmanRepo.findOne({
+          where: { user: { id: user.id } },
+          relations: ["graph"],
+        });
+        if (sportsman?.graphId) {
+          await graphRepo.delete(sportsman.graphId);
+        }
+        if (sportsman) {
+          await sportsmanRepo.delete(sportsman.id);
+        }
+        break;
+      }
+      case ProfileCategory.COACH: {
+        const coachRepo = AppDataSource.getRepository(Coach);
+        await coachRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      case ProfileCategory.MEDIC: {
+        const medicRepo = AppDataSource.getRepository(Medic);
+        await medicRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      case ProfileCategory.FREE: {
+        const freeRepo = AppDataSource.getRepository(Free);
+        await freeRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      case ProfileCategory.PARTNER: {
+        const partnerRepo = AppDataSource.getRepository(Partner);
+        const companyRepo = AppDataSource.getRepository(Companies);
+        const partner = await partnerRepo.findOne({
+          where: { user: { id: user.id } },
+          relations: ["company"],
+        });
+        if (partner?.companyId) {
+          await companyRepo.delete(partner.companyId);
+        }
+        if (partner) {
+          await partnerRepo.delete(partner.id);
+        }
+        break;
+      }
+      case ProfileCategory.ADMIN: {
+        const adminRepo = AppDataSource.getRepository(Admin);
+        await adminRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      default:
+        console.warn("Unknown profileCategory:", profileCategory);
+    }
+
+    await userRepo.delete(user.id);
+    res.status(200).json({
+      message: "Account deleted successfully.",
+    });
+  } catch (err) {
+    console.error("Delete current user error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
