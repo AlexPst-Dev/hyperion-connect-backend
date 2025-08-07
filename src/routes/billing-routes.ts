@@ -18,7 +18,7 @@ router.get("/:id", authenticateToken, requireRole("admin"), getBillingById);
 router.get(
   "/objective/:objectiveId",
   authenticateToken,
-  requireRole("admin"),
+  requireRole(["sportsman", "admin"]),
   getBillingsByObjectiveId
 );
 router.get(

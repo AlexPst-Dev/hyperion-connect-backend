@@ -16,6 +16,8 @@ import { In } from "typeorm";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { Files } from "../models/files-model";
+import { Categories } from "../models/categories-model";
 
 // Get all users
 export const getAllUsers = async (
@@ -59,12 +61,45 @@ export const getUserById = async (
     }
 
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { id: userId } });
+    const user = await userRepository.findOne({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        firstName: true,
+        lastName: true,
+        profileCategory: true,
+        filePictureId: true,
+        postalCode: true,
+        street: true,
+        city: true,
+        description: true,
+        birthDate: true,
+        stravaLink: true,
+        facebookLink: true,
+        instagramLink: true,
+        linkedinLink: true,
+        tiktokLink: true,
+        youtubeLink: true,
+        isActive: true,
+        isInHyperlinkNetwork: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const fileRepo = AppDataSource.getRepository(Files);
 
     if (!user) {
       res.status(404).json({ message: "Utilisateur non trouvé" });
     } else {
       let profile = null;
+      let file = null;
+
+      if (user.filePictureId) {
+        file = await fileRepo.findOne({ where: { id: user.filePictureId } });
+      }
 
       switch (user.profileCategory) {
         case ProfileCategory.SPORTSMAN:
@@ -75,11 +110,13 @@ export const getUserById = async (
         case ProfileCategory.COACH:
           profile = await AppDataSource.getRepository(Coach).findOne({
             where: { user: { id: userId } },
+            relations: ["sportCategories"],
           });
           break;
         case ProfileCategory.MEDIC:
           profile = await AppDataSource.getRepository(Medic).findOne({
             where: { user: { id: userId } },
+            relations: ["sportCategories"],
           });
           break;
         case ProfileCategory.FREE:
@@ -103,6 +140,7 @@ export const getUserById = async (
 
       res.status(200).json({
         user,
+        filePicture: file || null,
         profile,
       });
     }
@@ -451,7 +489,7 @@ export const createNewUserWithProfile = async (
       city,
       postalCode,
       description,
-      image,
+      filePictureId,
       birthDate,
       stravaLink,
       facebookLink,
@@ -492,7 +530,7 @@ export const createNewUserWithProfile = async (
       city,
       postalCode,
       description,
-      image,
+      filePictureId,
       birthDate,
       stravaLink,
       facebookLink,
@@ -519,23 +557,36 @@ export const createNewUserWithProfile = async (
           listMedicNotes: profile?.listMedicNotes || null,
           listMedicFiles: profile?.listMedicFiles || null,
           listMedicsIds: profile?.listMedicsIds || null,
+          listUserFiles: profile?.listUserFiles || null,
           graphId: profile?.graphId || null,
           subscriptionId: profile?.subscriptionId || null,
         });
         await sportsmanRepo.save(createdProfile);
         break;
       case ProfileCategory.COACH:
+        const coachCategoryIds = profile?.sportCategoryIds || [];
+        const coachCategoriesRepo = AppDataSource.getRepository(Categories);
+        const coachCategories = coachCategoryIds.length
+          ? await coachCategoriesRepo.findBy({ id: In(coachCategoryIds) })
+          : [];
+
         createdProfile = coachRepo.create({
           user: savedUser,
-          sportCategoryId: profile?.sportCategoryId || null,
+          sportCategories: coachCategories,
           canImportSessions: profile?.canImportSessions || false,
         });
         await coachRepo.save(createdProfile);
         break;
       case ProfileCategory.MEDIC:
+        const categoryIds = profile?.medicCategoryIds || [];
+        const categoriesRepo = AppDataSource.getRepository(Categories);
+        const categories = categoryIds.length
+          ? await categoriesRepo.findBy({ id: In(categoryIds) })
+          : [];
+
         createdProfile = medicRepo.create({
           user: savedUser,
-          medicCategoryId: profile?.medicCategoryId || null,
+          sportCategories: categories,
           canImportSessions: profile?.canImportSessions || false,
         });
         await medicRepo.save(createdProfile);
@@ -669,6 +720,86 @@ export const deleteUserById = async (
     }
   } catch (err) {
     console.error("Delete user error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteCurrentUser = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const userId = req.user.id;
+  const userRepo = AppDataSource.getRepository(User);
+
+  try {
+    const user = await userRepo.findOneBy({ id: userId });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const profileCategory = user.profileCategory;
+    switch (profileCategory) {
+      case ProfileCategory.SPORTSMAN: {
+        const sportsmanRepo = AppDataSource.getRepository(Sportsman);
+        const graphRepo = AppDataSource.getRepository(Graphs);
+        const sportsman = await sportsmanRepo.findOne({
+          where: { user: { id: user.id } },
+          relations: ["graph"],
+        });
+        if (sportsman?.graphId) {
+          await graphRepo.delete(sportsman.graphId);
+        }
+        if (sportsman) {
+          await sportsmanRepo.delete(sportsman.id);
+        }
+        break;
+      }
+      case ProfileCategory.COACH: {
+        const coachRepo = AppDataSource.getRepository(Coach);
+        await coachRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      case ProfileCategory.MEDIC: {
+        const medicRepo = AppDataSource.getRepository(Medic);
+        await medicRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      case ProfileCategory.FREE: {
+        const freeRepo = AppDataSource.getRepository(Free);
+        await freeRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      case ProfileCategory.PARTNER: {
+        const partnerRepo = AppDataSource.getRepository(Partner);
+        const companyRepo = AppDataSource.getRepository(Companies);
+        const partner = await partnerRepo.findOne({
+          where: { user: { id: user.id } },
+          relations: ["company"],
+        });
+        if (partner?.companyId) {
+          await companyRepo.delete(partner.companyId);
+        }
+        if (partner) {
+          await partnerRepo.delete(partner.id);
+        }
+        break;
+      }
+      case ProfileCategory.ADMIN: {
+        const adminRepo = AppDataSource.getRepository(Admin);
+        await adminRepo.delete({ user: { id: user.id } });
+        break;
+      }
+      default:
+        console.warn("Unknown profileCategory:", profileCategory);
+    }
+
+    await userRepo.delete(user.id);
+    res.status(200).json({
+      message: "Account deleted successfully.",
+    });
+  } catch (err) {
+    console.error("Delete current user error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };

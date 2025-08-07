@@ -111,9 +111,6 @@ export class CoachingEvent {
 
   @Column({ nullable: true })
   coachComment: string;
-
-  @Column({ nullable: true })
-  coachNote: string;
 }
 
 @Entity(EventCategory.MEDICAL)

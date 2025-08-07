@@ -89,11 +89,20 @@ export const createSubscription = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { labelDiagnostic, labelPerformancePlan, subscriptionFileId } =
-    req.body;
+  const {
+    monthlyMonitoringCategory,
+    isBilanComplete,
+    startDate,
+    endDate,
+    otherServises,
+    subscriptionFileId,
+  } = req.body;
 
-  if (!labelDiagnostic || !labelPerformancePlan || !subscriptionFileId) {
-    res.status(400).json({ message: "Tous les champs sont requis." });
+  if (!startDate || !endDate || !subscriptionFileId) {
+    res.status(400).json({
+      message:
+        "Les champs startDate, endDate et subscriptionFileId sont requis.",
+    });
     return;
   }
 
@@ -108,8 +117,11 @@ export const createSubscription = async (
 
     const subscriptionRepo = AppDataSource.getRepository(Subscriptions);
     const newSubscription = subscriptionRepo.create({
-      labelDiagnostic,
-      labelPerformancePlan,
+      monthlyMonitoringCategory,
+      isBilanComplete,
+      startDate,
+      endDate,
+      otherServises,
       subscriptionFile: file,
       subscriptionFileId,
     });
@@ -127,8 +139,14 @@ export const updateSubscription = async (
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id, 10);
-  const { labelDiagnostic, labelPerformancePlan, subscriptionFileId } =
-    req.body;
+  const {
+    monthlyMonitoringCategory,
+    isBilanComplete,
+    startDate,
+    endDate,
+    otherServises,
+    subscriptionFileId,
+  } = req.body;
 
   if (isNaN(id)) {
     res.status(400).json({ message: "L'ID doit être un nombre." });
@@ -144,9 +162,13 @@ export const updateSubscription = async (
       return;
     }
 
-    if (labelDiagnostic) subscription.labelDiagnostic = labelDiagnostic;
-    if (labelPerformancePlan)
-      subscription.labelPerformancePlan = labelPerformancePlan;
+    if (monthlyMonitoringCategory)
+      subscription.monthlyMonitoringCategory = monthlyMonitoringCategory;
+    if (isBilanComplete) subscription.isBilanComplete = isBilanComplete;
+    if (startDate) subscription.startDate = startDate;
+    if (endDate) subscription.endDate = endDate;
+    if (otherServises) subscription.otherServises = otherServises;
+
     if (subscriptionFileId) {
       const file = await AppDataSource.getRepository(Files).findOneBy({
         id: subscriptionFileId,

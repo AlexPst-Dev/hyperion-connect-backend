@@ -8,12 +8,15 @@ import {
   JoinColumn,
   PrimaryColumn,
   OneToOne,
+  JoinTable,
+  ManyToMany,
 } from "typeorm";
 
 import { Categories } from "./categories-model";
 import { Subscriptions } from "./subscription-model";
 import { Graphs } from "./graphs-model";
 import { Companies } from "./companies-model";
+import { Files } from "./files-model";
 
 export enum ProfileCategory {
   SPORTSMAN = "sportsman",
@@ -56,8 +59,12 @@ export class User {
   @Column({ type: "text", nullable: true })
   description: string;
 
-  @Column({ nullable: true })
-  image: string;
+  @ManyToOne(() => Files, (file) => file.id)
+  @JoinColumn({ name: "file_picture_id" })
+  filePicture: Files;
+
+  @Column({ name: "file_picture_id", nullable: true })
+  filePictureId: number;
 
   @Column({ name: "birth_date", type: "date", nullable: true })
   birthDate: Date;
@@ -127,6 +134,9 @@ export class Sportsman {
   @Column({ name: "list_medics_ids", nullable: true })
   listMedicsIds: string;
 
+  @Column({ name: "list_user_files", nullable: true })
+  listUserFiles: string;
+
   @OneToOne(() => Graphs, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "graph_id" })
   graph: Graphs;
@@ -140,6 +150,9 @@ export class Sportsman {
 
   @Column({ name: "subscription_id", nullable: true })
   subscriptionId: number;
+
+  @Column({ name: "trackingFile_url", nullable: true })
+  trackingFileUrl: string;
 }
 
 @Entity(ProfileCategory.COACH)
@@ -151,12 +164,13 @@ export class Coach {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @ManyToOne(() => Categories, (category) => category.id)
-  @JoinColumn({ name: "sport_category" })
-  sportCategory: Categories;
-
-  @Column({ name: "sport_category", nullable: true })
-  sportCategoryId: number;
+  @ManyToMany(() => Categories)
+  @JoinTable({
+    name: "coach_categories",
+    joinColumn: { name: "coach_id", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "category_id", referencedColumnName: "id" },
+  })
+  sportCategories: Categories[];
 
   @Column({ name: "can_import_sessions", default: false })
   canImportSessions: boolean;
@@ -171,12 +185,13 @@ export class Medic {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @ManyToOne(() => Categories, (category) => category.id)
-  @JoinColumn({ name: "medic_category" })
-  medicCategory: Categories;
-
-  @Column({ name: "medic_category", nullable: true })
-  medicCategoryId: number;
+  @ManyToMany(() => Categories)
+  @JoinTable({
+    name: "medic_categories",
+    joinColumn: { name: "medic_id", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "category_id", referencedColumnName: "id" },
+  })
+  sportCategories: Categories[];
 
   @Column({ name: "can_import_sessions", default: false })
   canImportSessions: boolean;

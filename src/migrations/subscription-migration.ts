@@ -22,11 +22,25 @@ export class CreateSubscriptionsTable1698734800013
             generationStrategy: "increment",
           }),
           new TableColumn({
-            name: "label_diagnostic",
-            type: "varchar",
+            name: "is_bilan_complete",
+            type: "boolean",
+            default: true,
           }),
           new TableColumn({
-            name: "label_performance_plan",
+            name: "monthly_monitoring_category",
+            type: "enum",
+            enum: ["COMPLETE", "DIETETIC", "MENTAL_COACHING"],
+          }),
+          new TableColumn({
+            name: "start_date",
+            type: "date",
+          }),
+          new TableColumn({
+            name: "end_date",
+            type: "date",
+          }),
+          new TableColumn({
+            name: "other_servises",
             type: "varchar",
           }),
           new TableColumn({

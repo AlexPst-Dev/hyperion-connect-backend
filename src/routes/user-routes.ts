@@ -10,11 +10,13 @@ import {
   updateUserByProfileAndId,
   deleteUserById,
   createNewUserWithProfile,
+  deleteCurrentUser,
 } from "../controllers/user-controller";
 import {
   authenticateToken,
   requireRole,
   requireRoleOrSelf,
+  requireSelf,
   requireSelfOrAdmin,
 } from "../middleware/auth.middleware";
 
@@ -23,29 +25,40 @@ const router = Router();
 // User routes
 // Public
 router.get("/", getAllUsers);
-router.get("/:id", getUserById);
 router.get("/category/:category", getUsersByProfileCategory);
-router.get("/sportsman/:id/graph", getGraphBySportsmanUserId);
-router.get("/partner/:id/company", getCompanyByPartnerId);
+
 // Private
+router.delete("/self", authenticateToken, deleteCurrentUser);
+
 router.get(
   "/sportsman/:id/subscription",
   authenticateToken,
   requireSelfOrAdmin(),
   getSubscriptionBySportsmanUserId
 );
-router.put("/:id", authenticateToken, requireSelfOrAdmin(), updateUserById);
-router.patch(
-  "/:id/:profileCategory",
-  authenticateToken,
-  requireRoleOrSelf(["admin", "coach", "medic"]),
-  updateUserByProfileAndId
-);
+router.get("/sportsman/:id/graph", getGraphBySportsmanUserId);
+router.get("/partner/:id/company", getCompanyByPartnerId);
+
 router.post(
   "/",
   authenticateToken,
   requireRole("admin"),
   createNewUserWithProfile
 );
-router.delete("/:id", authenticateToken, requireRole("admin"), deleteUserById);
+
+router.get("/:id", getUserById);
+router.put("/:id", authenticateToken, requireSelfOrAdmin(), updateUserById);
+router.patch(
+  "/:id/:profileCategory",
+  authenticateToken,
+  requireRoleOrSelf(["admin", "coach", "medic", "partner"]),
+  updateUserByProfileAndId
+);
+router.delete(
+  "/:id",
+  authenticateToken,
+  requireRoleOrSelf(["admin"]),
+  deleteUserById
+);
+
 export default router;

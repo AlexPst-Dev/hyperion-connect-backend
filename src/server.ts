@@ -20,6 +20,7 @@ import notificationsRoutes from "./routes/notification-routes";
 import categoriesRoutes from "./routes/category-routes";
 import subscriptionsRoutes from "./routes/subscription-routes";
 import linkedSessionRoutes from "./routes/linked-sessions-routes";
+import qrCodeRoutes from "./routes/verification-routes";
 
 // Import security middleware
 import helmet from "helmet";
@@ -90,5 +91,7 @@ app.use("/api/categories", categoriesRoutes);
 app.use("/api/subscriptions", subscriptionsRoutes);
 
 app.use("/api/linkedSessions", linkedSessionRoutes);
+
+app.use("/api/verifications", qrCodeRoutes);
 
 export default app;

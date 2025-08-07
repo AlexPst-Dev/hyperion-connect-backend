@@ -18,7 +18,12 @@ router.get("/:id", getCompanyById);
 router.get("/responsible/:id", getCompanyResponsibleById);
 
 // Private
-router.post("/", authenticateToken, requireRole("admin"), createCompany);
+router.post(
+  "/",
+  authenticateToken,
+  requireRole(["admin", "partner"]),
+  createCompany
+);
 router.patch(
   "/:id",
   authenticateToken,

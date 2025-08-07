@@ -9,6 +9,7 @@ import {
 export enum FileCategory {
   IMAGE = "IMAGE",
   MEDICAL_FILE = "MEDICAL_FILE",
+  USER_FILE = "USER_FILE",
   SESSION_IMPORTED = "SESSION_IMPORTED",
   SUBSCRIPTION = "SUBSCRIPTION",
 }
@@ -20,6 +21,9 @@ export class Files {
 
   @Column()
   label: string;
+
+  @Column({ nullable: true })
+  physicalName: string;
 
   @Column()
   url: string;
