@@ -106,7 +106,6 @@ export const AppDataSource = new DataSource({
     Categories,
     Subscriptions,
     LinkedSessions,
-    __dirname + "/models/*.{ts,js}",
   ],
   migrations: [
     CreateUserMigration1698734800000,
@@ -129,7 +128,6 @@ export const AppDataSource = new DataSource({
     UpdateExercisesTable1698734800018,
     UpdateSportsmanMigration1698734800017,
     CreateLinkedSessionsTable169878480467,
-    __dirname + "/migrations/*.{ts,js}",
   ],
   subscribers: [],
 });
