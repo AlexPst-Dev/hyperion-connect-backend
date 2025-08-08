@@ -8,6 +8,11 @@ async function testDatabaseConnection() {
   try {
     await AppDataSource.initialize();
     console.log("MySQL connection has been established successfully.");
+    console.log("✅ Connected to DB:", AppDataSource.options.database);
+    console.log(
+      "📦 Loaded entities:",
+      AppDataSource.entityMetadatas.map((e) => e.name)
+    );
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
