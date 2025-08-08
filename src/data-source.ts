@@ -5,7 +5,6 @@ import * as dotenv from "dotenv";
 import path from "path";
 
 dotenv.config();
-const isProd = process.env.NODE_ENV === "production";
 
 export const AppDataSource = new DataSource({
   type: "mysql",
@@ -18,8 +17,7 @@ export const AppDataSource = new DataSource({
   synchronize: config.db.synchronize,
   logging: config.db.logging,
   dropSchema: config.db.dropSchema,
-  entities: [path.join(__dirname, isProd ? "/models/*.js" : "/models/*.ts")],
-  migrations: [
-    path.join(__dirname, isProd ? "/migrations/*.js" : "/migrations/*.ts"),
-  ],
+  entities: [path.join(__dirname, "/models/*.{js,ts}")],
+  migrations: [path.join(__dirname, "/migrations/*.{js,ts}")],
+  subscribers: [],
 });

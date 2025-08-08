@@ -3,22 +3,20 @@ import app from "./server";
 
 const PORT = process.env.PORT || 3000;
 
-// Test database connection
-async function testDatabaseConnection() {
-  try {
-    await AppDataSource.initialize();
-    console.log("MySQL connection has been established successfully.");
-    console.log("✅ Connected to DB:", AppDataSource.options.database);
+// Initialisation de la BDD avant de démarrer le serveur
+AppDataSource.initialize()
+  .then(() => {
+    console.log("✅ MySQL connection established successfully.");
     console.log(
       "📦 Loaded entities:",
       AppDataSource.entityMetadatas.map((e) => e.name)
     );
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-}
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  testDatabaseConnection();
-});
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("❌ Unable to connect to the database:", error);
+    process.exit(1); // Stop le process si la connexion échoue
+  });
