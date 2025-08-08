@@ -1,67 +1,8 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { config } from "./config/config";
-
-import {
-  User,
-  Sportsman,
-  Coach,
-  Medic,
-  Free,
-  Partner,
-  Admin,
-} from "./models/users-model";
-import { Contact } from "./models/contact-model";
-import { Client } from "./models/client-model";
-import { Sessions } from "./models/sessions-model";
-import { Exercises } from "./models/exercices-model";
-import {
-  Events,
-  HyperlinkEvent,
-  CoachingEvent,
-  SportingActivityEvent,
-  HyperionEvent,
-  MedicalEvent,
-} from "./models/events-model";
-import { Objectives } from "./models/objectives-model";
-import { Billings } from "./models/billings-model";
-import { Companies } from "./models/companies-model";
-import { Offers, DiscountOffer, SponsorshipOffer } from "./models/offers-model";
-import { Graphs } from "./models/graphs-model";
-import { Files } from "./models/files-model";
-import { Notifications } from "./models/notifications-model";
-import { Categories } from "./models/categories-model";
-import { Subscriptions } from "./models/subscription-model";
-import { LinkedSessions } from "./models/linked-sessions-model";
-
-import {
-  CreateUserMigration1698734800000,
-  UpdateSportsmanMigration1698734800017,
-  UpdateUserMigration1698734800016,
-} from "./migrations/users-migration";
-import { CreateContactTable1698734800001 } from "./migrations/contact-migration";
-import { CreateClientTable1698784800021 } from "./migrations/client-migration";
-import {
-  CreateSessionsTable1698734800002,
-  UpdateSessionsTable1698734800017,
-} from "./migrations/sessions-migration";
-import {
-  CreateExercisesTable1698734800003,
-  UpdateExercisesTable1698734800018,
-} from "./migrations/exercices-migration";
-import { CreateEventsTable1698734800006 } from "./migrations/events-migration";
-import { CreateObjectivesTable1698734800006 } from "./migrations/objectives-migration";
-import { UpdateBillingsTable1698734800014 } from "./migrations/billings-migration";
-import { CreateCompaniesTable1698734800008 } from "./migrations/companies-migration";
-import { CreateOffersTable1698734800008 } from "./migrations/offers-migration";
-import { CreateGraphTable1698734800009 } from "./migrations/graphs-migration";
-import { CreateFilesTable1698734800010 } from "./migrations/files-migration";
-import { CreateNotificationsTable1698734800011 } from "./migrations/notifications-migration";
-import { CreateCategoriesTable1698734800012 } from "./migrations/categories-migration";
-import { CreateSubscriptionsTable1698734800013 } from "./migrations/subscription-migration";
-import { CreateLinkedSessionsTable169878480467 } from "./migrations/linked-sessions-migration";
-
 import * as dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
@@ -76,58 +17,7 @@ export const AppDataSource = new DataSource({
   synchronize: config.db.synchronize,
   logging: config.db.logging,
   dropSchema: config.db.dropSchema,
-  entities: [
-    User,
-    Sportsman,
-    Coach,
-    Medic,
-    Free,
-    Partner,
-    Admin,
-    Contact,
-    Client,
-    Sessions,
-    Exercises,
-    Events,
-    HyperionEvent,
-    MedicalEvent,
-    HyperlinkEvent,
-    CoachingEvent,
-    SportingActivityEvent,
-    Offers,
-    DiscountOffer,
-    SponsorshipOffer,
-    Billings,
-    Companies,
-    Objectives,
-    Graphs,
-    Files,
-    Notifications,
-    Categories,
-    Subscriptions,
-    LinkedSessions,
-  ],
-  migrations: [
-    CreateUserMigration1698734800000,
-    UpdateUserMigration1698734800016,
-    CreateContactTable1698734800001,
-    CreateClientTable1698784800021,
-    CreateSessionsTable1698734800002,
-    CreateExercisesTable1698734800003,
-    CreateEventsTable1698734800006,
-    CreateObjectivesTable1698734800006,
-    UpdateBillingsTable1698734800014,
-    CreateCompaniesTable1698734800008,
-    CreateOffersTable1698734800008,
-    CreateGraphTable1698734800009,
-    CreateFilesTable1698734800010,
-    CreateNotificationsTable1698734800011,
-    CreateCategoriesTable1698734800012,
-    CreateSubscriptionsTable1698734800013,
-    UpdateSessionsTable1698734800017,
-    UpdateExercisesTable1698734800018,
-    UpdateSportsmanMigration1698734800017,
-    CreateLinkedSessionsTable169878480467,
-  ],
+  entities: [path.join(__dirname, "/models/*.{js,ts}")],
+  migrations: [path.join(__dirname, "/migrations/*.{js,ts}")],
   subscribers: [],
 });
