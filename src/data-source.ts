@@ -6,6 +6,10 @@ import path from "path";
 
 dotenv.config();
 
+// Détermine si on est en mode développement ou production
+const isDev =
+  process.env.NODE_ENV !== "production" && __filename.endsWith(".ts");
+
 export const AppDataSource = new DataSource({
   type: "mysql",
   driver: require("mysql2"),
@@ -17,7 +21,12 @@ export const AppDataSource = new DataSource({
   synchronize: config.db.synchronize,
   logging: config.db.logging,
   dropSchema: config.db.dropSchema,
-  entities: [path.join(__dirname, "/models/*.{js,ts}")],
-  migrations: [path.join(__dirname, "/migrations/*.{js,ts}")],
+  // Utilise les bons chemins selon l'environnement
+  entities: isDev
+    ? [path.join(__dirname, "/models/*.{js,ts}")]
+    : [path.join(__dirname, "/models/*.js")],
+  migrations: isDev
+    ? [path.join(__dirname, "/migrations/*.{js,ts}")]
+    : [path.join(__dirname, "/migrations/*.js")],
   subscribers: [],
 });

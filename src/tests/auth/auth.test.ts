@@ -1,18 +1,21 @@
 import request from "supertest";
-import app from "../../server";
+import { createApp } from "../../server";
 import { AppDataSource } from "../../data-source";
 import { User } from "../../models/users-model";
 import bcrypt from "bcrypt";
+import { Express } from "express";
+
+let app: Express;
 
 // Setup / Teardown
 beforeAll(async () => {
   await AppDataSource.initialize();
+  app = createApp(); // Créer l'app après l'initialisation de la DB
 });
 
 afterAll(async () => {
   const userRepo = AppDataSource.getRepository(User);
   await userRepo.delete({ email: "testauth@example.com" });
-
   await AppDataSource.destroy();
 });
 
@@ -104,6 +107,7 @@ describe("🧪 Auth routes", () => {
 
   it("❌ devrait refuser l'accès à /me sans token", async () => {
     const response = await request(app).get("/api/auth/me");
+
     expect(response.status).toBe(401); // ou 403 selon ton middleware
   });
 });

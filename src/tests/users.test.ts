@@ -1,14 +1,17 @@
 import request from "supertest";
 import { AppDataSource } from "../data-source";
-import app from "../server";
+import { createApp } from "../server";
 import { User, ProfileCategory, Sportsman } from "../models/users-model";
 import { generateTestJWT } from "../utils/jwt";
+import { Express } from "express";
 
+let app: Express;
 let authToken: string;
 let userId: number;
 
 beforeAll(async () => {
   await AppDataSource.initialize();
+  app = createApp(); // Créer l'app après l'initialisation de la DB
 
   // Create a test user and sportsman profile
   const userRepo = AppDataSource.getRepository(User);
@@ -21,6 +24,7 @@ beforeAll(async () => {
     lastName: "Doe",
     profileCategory: ProfileCategory.SPORTSMAN,
   });
+
   await userRepo.save(user);
 
   const profile = sportsmanRepo.create({ user });
@@ -35,6 +39,7 @@ beforeAll(async () => {
     lastName: "User",
     profileCategory: ProfileCategory.ADMIN,
   });
+
   await userRepo.save(adminUser);
 
   authToken = "Bearer " + generateTestJWT(adminUser);

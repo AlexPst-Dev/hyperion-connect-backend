@@ -1,6 +1,5 @@
 # Étape 1 : Build
 FROM node:20 AS build
-
 WORKDIR /app
 
 # Copie package.json et package-lock.json (si dispo)
@@ -17,7 +16,6 @@ RUN npm run build
 
 # Étape 2 : Runtime
 FROM node:20 AS prod
-
 WORKDIR /app
 
 # Copie uniquement les modules Node installés
@@ -32,5 +30,5 @@ COPY package*.json ./
 # Déclare le port exposé
 EXPOSE 3000
 
-# Point d'entrée de l'application
-CMD ["node", "dist/server.js"]
+# Point d'entrée de l'application - CHANGEMENT ICI
+CMD ["node", "dist/index.js"]
