@@ -33,4 +33,4 @@ COPY package*.json ./
 EXPOSE 3000
 
 # Point d'entrée de l'application
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/index.js"]
