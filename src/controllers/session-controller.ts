@@ -1,7 +1,6 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Sessions } from "../models/sessions-model";
-import { Files } from "../models/files-model";
 import { Exercises } from "../models/exercices-model";
 import { In } from "typeorm";
 import { Categories, CategoryType } from "../models/categories-model";
@@ -18,7 +17,7 @@ export const createSession = async (
       label,
       numberOfExercises,
       durationTime,
-      filePictureId,
+      publicImageUrl,
       listExercises,
       recommendations,
       contributions,
@@ -36,7 +35,7 @@ export const createSession = async (
       label,
       numberOfExercises,
       durationTime,
-      filePictureId: filePictureId || null,
+      publicImageUrl: publicImageUrl || null,
       listExercises: listExercises || null,
       recommendations: recommendations || null,
       contributions: contributions || null,
@@ -65,7 +64,6 @@ export const getAllSessions = async (
 
     const sessions = await sessionRepo
       .createQueryBuilder("session")
-      .leftJoinAndSelect("session.filePicture", "filePicture")
       .where("session.isActive = :isActive", { isActive: true })
       .getMany();
 
@@ -89,7 +87,6 @@ export const getSessionById = async (
     }
 
     const sessionRepo = AppDataSource.getRepository(Sessions);
-    const fileRepo = AppDataSource.getRepository(Files);
 
     const session = await sessionRepo.findOne({
       where: { id: sessionId },
@@ -100,16 +97,9 @@ export const getSessionById = async (
       return;
     }
 
-    let file = null;
-
-    if (session.filePictureId) {
-      file = await fileRepo.findOne({ where: { id: session.filePictureId } });
-    }
-
-    res.status(200).json({
+    res.status(200).json(
       session,
-      filePicture: file || null,
-    });
+    );
   } catch (error) {
     console.error("Erreur lors de la récupération de la session :", error);
     res.status(500).json({ message: "Erreur serveur" });
@@ -204,7 +194,6 @@ export const getExercisesBySessionId = async (
   try {
     const sessionRepo = AppDataSource.getRepository(Sessions);
     const exerciseRepo = AppDataSource.getRepository(Exercises);
-    const fileRepo = AppDataSource.getRepository(Files);
     const categoryRepo = AppDataSource.getRepository(Categories);
 
     const session = await sessionRepo.findOneBy({ id: sessionId });
@@ -235,12 +224,7 @@ export const getExercisesBySessionId = async (
 
     const exercisesWithDetails = await Promise.all(
       exercises.map(async (exercise) => {
-        let file: Files | null = null;
         let muscleGroups: Categories[] = [];
-
-        if (exercise.filePictureId) {
-          file = await fileRepo.findOneBy({ id: exercise.filePictureId });
-        }
 
         if (exercise.listMuscleGroupIds) {
           const muscleGroupIds = exercise.listMuscleGroupIds
@@ -260,7 +244,6 @@ export const getExercisesBySessionId = async (
 
         return {
           ...exercise,
-          filePicture: file || null,
           muscleGroups,
         };
       })

@@ -22,10 +22,20 @@ export class Files {
   @Column()
   label: string;
 
+  @Column({ name: "mime_type", length: 100, nullable: true })
+  mimeType: string;
+
+  @Column({
+    type: "longblob",
+    name: "data",
+    nullable: true,
+  })
+  data: Buffer;
+
   @Column({ nullable: true })
   physicalName: string;
 
-  @Column()
+  @Column({ nullable: true })
   url: string;
 
   @Column({ type: "enum", enum: FileCategory, name: "file_category" })

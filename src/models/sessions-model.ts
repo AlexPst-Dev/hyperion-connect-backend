@@ -7,7 +7,6 @@ import {
   JoinColumn,
   ManyToOne,
 } from "typeorm";
-import { Files } from "./files-model";
 import { User } from "./users-model";
 
 @Entity("sessions")
@@ -24,12 +23,8 @@ export class Sessions {
   @Column({ name: "duration_time" })
   durationTime: string;
 
-  @ManyToOne(() => Files, (file) => file.id)
-  @JoinColumn({ name: "file_picture_id" })
-  filePicture: Files;
-
-  @Column({ name: "file_picture_id", nullable: true })
-  filePictureId: number;
+  @Column({name: "publicImageUrl", nullable: true})
+  publicImageUrl: string;
 
   @Column({ name: "list_exercises", type: "varchar", nullable: true })
   listExercises: string;
