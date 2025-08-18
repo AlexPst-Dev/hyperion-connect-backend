@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Exercises } from "../models/exercices-model";
 import { Files } from "../models/files-model";
@@ -19,7 +19,7 @@ export const createExercice = async (
       durationTime,
       description,
       recommendations,
-      filePictureId,
+      publicImageUrl,
     } = req.body;
 
     if (!label || !durationTime) {
@@ -33,7 +33,7 @@ export const createExercice = async (
       label,
       durationTime,
       listMuscleGroupIds: listMuscleGroupIds || null,
-      filePictureId: filePictureId || null,
+      publicImageUrl: publicImageUrl || null,
       description: description || null,
       recommendations: recommendations || null,
       isActive: true,
@@ -59,7 +59,6 @@ export const getAllExercices = async (
 
     const exercises = await exerciceRepo
       .createQueryBuilder("exercice")
-      .leftJoinAndSelect("exercice.filePicture", "filePicture")
       .where("exercice.isActive = :isActive", { isActive: true })
       .getMany();
 
@@ -94,15 +93,8 @@ export const getExerciceById = async (
       return;
     }
 
-    let file = null;
-
-    if (exercice.filePictureId) {
-      file = await fileRepo.findOne({ where: { id: exercice.filePictureId } });
-    }
-
     res.status(200).json({
-      exercice,
-      filePicture: file || null,
+      exercice
     });
   } catch (error) {
     console.error("Erreur lors de la récupération de l'exercice :", error);

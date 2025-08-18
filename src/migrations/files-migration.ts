@@ -23,6 +23,21 @@ export class CreateFilesTable1698734800010 implements MigrationInterface {
             isNullable: true,
           }),
           new TableColumn({
+            name: "mime_type",
+            type: "varchar",
+            isNullable: true,
+          }),
+          new TableColumn({
+            name: "data",
+            type: "longblob",
+            isNullable: true,
+          }),
+          new TableColumn({
+            name: "url",
+            type: "varchar",
+            isNullable: true,
+          }),
+          new TableColumn({
             name: "url",
             type: "varchar",
           }),

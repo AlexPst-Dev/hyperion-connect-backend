@@ -10,17 +10,8 @@ import {
   serveImage,
   serveCompanyImage,
 } from "../controllers/file-controller";
-import {
-  authenticateToken,
-  requireRole,
-  requireRoleOrSelf,
-  requireSelfOrAdmin,
-} from "../middleware/auth.middleware";
-import {
-  handleMulterError,
-  moveFileToCorrectFolder,
-  upload,
-} from "../middleware/multer.middleware";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
+import { handleMulterError, upload } from "../middleware/multer.middleware";
 import { corsForImages } from "../middleware/corsForImages.middleware";
 
 const router = Router();
@@ -36,15 +27,16 @@ router.post(
   requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   upload.single("file"),
   handleMulterError,
-  moveFileToCorrectFolder,
   createFile
 );
+
 router.get(
   "/download/:id",
   authenticateToken,
   requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   downloadFile
 );
+
 router.options("/image/:id", corsForImages);
 router.get(
   "/image/:id",
@@ -53,6 +45,7 @@ router.get(
   requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   serveImage
 );
+
 router.options("/companyImage/:id", corsForImages);
 router.get(
   "/companyImage/:id",
@@ -61,14 +54,23 @@ router.get(
   requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   serveCompanyImage
 );
-router.get("/", authenticateToken, requireRole("admin"), getAllFiles);
+
+router.get(
+  "/",
+  authenticateToken,
+  requireRole(["admin", "coach", "medic", "sportsman"]),
+  getAllFiles
+);
+
 router.get(
   "/category/:category",
   authenticateToken,
   requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   getFilesByCategory
 );
+
 router.patch("/:id", authenticateToken, updateFile);
+
 router.delete(
   "/:id",
   authenticateToken,
