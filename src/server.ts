@@ -35,7 +35,14 @@ export const createApp = () => {
   app.use(express.json());
   app.use(helmet());
   app.use(mongoSanitize());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "*", // or specific front domain only
+      methods: ["GET", "POST", "PATCH", "UPDATE", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Authorization", "Content-Type"],
+      exposedHeaders: ["Content-Type", "Content-Length"],
+    })
+  );
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
