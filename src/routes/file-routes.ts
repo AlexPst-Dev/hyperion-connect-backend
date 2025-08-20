@@ -12,7 +12,10 @@ import {
 } from "../controllers/file-controller";
 import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 import { handleMulterError, upload } from "../middleware/multer.middleware";
-import { corsForImages } from "../middleware/corsForImages.middleware";
+import {
+  corsForDownload,
+  corsForImages,
+} from "../middleware/corsForImages.middleware";
 
 const router = Router();
 
@@ -32,6 +35,7 @@ router.post(
 
 router.get(
   "/download/:id",
+  corsForDownload,
   authenticateToken,
   requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   downloadFile

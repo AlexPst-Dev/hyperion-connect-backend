@@ -92,6 +92,13 @@ export const downloadFile = async (
       `attachment; filename="${file.label}"`
     );
     res.setHeader("Content-Length", file.data.length.toString());
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Authorization, Content-Type"
+    );
 
     // Envoyer les données binaires
     res.send(file.data);

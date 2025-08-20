@@ -24,3 +24,19 @@ export const corsForImages = (
 
   next();
 };
+
+export const corsForDownload = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  // Gérer les requêtes OPTIONS
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+  next();
+};
