@@ -13,6 +13,7 @@ import {
 } from "../models/users-model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
+import { sendMail } from "../utils/mailService";
 
 // Login user post method
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
@@ -181,6 +182,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
     const { password: _, ...userSafe } = savedUser;
     const token = generateToken(savedUser.id, savedUser.profileCategory);
+
+    await sendMail(
+      email,
+      "Bienvenue 🎉",
+      `<h1 style="color: #1E3A8A">Merci pour votre inscription !</h1><p>Votre compte a bien été créé 🎉</p>`
+    );
     res.status(201).json({ message: "User registered", user: userSafe, token });
   } catch (error) {
     console.error("Registration error:", error);
