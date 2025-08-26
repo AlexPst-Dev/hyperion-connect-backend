@@ -189,7 +189,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await sendMail(
       email,
-      "Bienvenue 🎉",
+      "HYPERION - Bienvenue 🎉",
       `<h1 style="color: #1E3A8A">Merci pour votre inscription !</h1><p>Votre compte a bien été créé 🎉</p>`
     );
     res.status(201).json({ message: "User registered", user: userSafe, token });
@@ -288,7 +288,7 @@ export const forgotPassword = async (
 
     await sendMail(
       email,
-      "Réinitialisation de votre mot de passe",
+      "HYPERION - Réinitialisation de votre mot de passe",
       `
         <h1 style="color: #1E3A8A">Réinitialisation du mot de passe</h1>
         <p>Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe :</p>
