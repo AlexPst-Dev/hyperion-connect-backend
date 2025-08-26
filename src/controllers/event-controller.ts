@@ -10,6 +10,7 @@ import {
   SportingActivityEvent,
 } from "../models/events-model";
 import { In } from "typeorm";
+import { sendMail } from "../utils/mailService";
 
 export const getAllEvents = async (
   req: Request,
@@ -137,6 +138,30 @@ export const createEvent = async (
           theme: specificEventData.theme || null,
         });
         await hyperlinkEventsRepo.save(specificEvent);
+        // Envoi du mail à tous les membres Hyperlink
+        const userRepo = AppDataSource.getRepository(User);
+        const hyperlinkMembers = await userRepo.find({
+          where: { isInHyperlinkNetwork: true },
+        });
+        for (const member of hyperlinkMembers) {
+          if (member.email) {
+            await sendMail(
+              member.email,
+              "HYPERION - Evénement Hyperlink",
+              `<h1 style="color: #1E3A8A">HYPERION - Evénement Hyperlink</h1>
+              <p>Titre : ${
+                savedEvent.title
+              }</p><p>Consultez la plateforme pour plus d'informations.</p>
+              <p>Cet événement a pour thème : ${
+                specificEventData.theme || "Non renseigné"
+              }</p>
+              <p>Et aura lieu le: ${savedEvent.date} à ${
+                savedEvent.location
+              }</p>
+              `
+            );
+          }
+        }
         break;
       case EventCategory.COACHING:
         specificEvent = coachingEventsRepo.create({
@@ -572,6 +597,33 @@ export const updateEvent = async (
           child.coachComment =
             specificEventData.coachComment ?? child.coachComment;
           await repo.save(child);
+
+          // Envoi du mail aux participants
+          const userRepo = AppDataSource.getRepository(User);
+          const parseIds = (idString: string | null): number[] =>
+            idString
+              ? idString
+                  .split(";")
+                  .map((id) => parseInt(id.trim(), 10))
+                  .filter((id) => !isNaN(id))
+              : [];
+          const participantIds = parseIds(event.personOngoingIds);
+          if (participantIds.length > 0) {
+            const participants = await userRepo.findBy({
+              id: In(participantIds),
+            });
+            for (const participant of participants) {
+              if (participant.email) {
+                await sendMail(
+                  participant.email,
+                  "HYPERION - Votre séance a été modifiée par votre coach",
+                  `<h1 style="color: #1E3A8A">HYPERION - Votre séance a été modifiée par votre coach</h1>
+                  <p>Titre : ${event.title}</p>
+                  <p>Votre coach vient d'effectuer une modification à l'une de vos séances à venir.</p>`
+                );
+              }
+            }
+          }
         }
         break;
       }
