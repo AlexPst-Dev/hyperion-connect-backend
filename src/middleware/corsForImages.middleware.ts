@@ -8,7 +8,10 @@ export const corsForImages = (
 ) => {
   // Headers CORS essentiels
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, OPTIONS"
+  );
   res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
   res.setHeader(
     "Access-Control-Expose-Headers",
@@ -31,7 +34,10 @@ export const corsForDownload = (
   next: NextFunction
 ) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, OPTIONS, GET, PUT, PATCH, DELETE"
+  );
   res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
   // Gérer les requêtes OPTIONS
   if (req.method === "OPTIONS") {

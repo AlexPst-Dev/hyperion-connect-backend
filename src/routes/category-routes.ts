@@ -21,7 +21,7 @@ router.get(
 router.get(
   "/:id",
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   getCategoryById
 );
 router.get(

@@ -38,7 +38,7 @@ export const createApp = () => {
   app.use(
     cors({
       origin: "*", // or specific front domain only
-      methods: ["GET", "POST", "PATCH", "UPDATE", "DELETE", "OPTIONS"],
+      methods: ["GET", "POST", "PATCH", "UPDATE", "DELETE", "OPTIONS", "PUT"],
       allowedHeaders: ["Authorization", "Content-Type"],
       exposedHeaders: ["Content-Type", "Content-Length"],
     })
