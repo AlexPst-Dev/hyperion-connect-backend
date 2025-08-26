@@ -14,6 +14,10 @@ import {
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
 import { sendMail } from "../utils/mailService";
+import { generateResetToken, verifyResetToken } from "../utils/resetToken";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 // Login user post method
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
@@ -253,6 +257,95 @@ export const changePassword = async (
     res.status(200).json({ message: "Mot de passe mis à jour avec succès" });
   } catch (error) {
     console.error("Erreur changement mdp :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ message: "Email requis" });
+      return;
+    }
+
+    const userRepo = AppDataSource.getRepository(User);
+    const user = await userRepo.findOne({ where: { email } });
+
+    if (!user) {
+      // Pour éviter de leak des infos → on dit toujours que c'est OK
+      res.json({ message: "Si l'email existe, un lien a été envoyé" });
+      return;
+    }
+
+    const token = generateResetToken(user.id.toString());
+
+    // Lien de reset → ton front va le gérer
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    await sendMail(
+      email,
+      "Réinitialisation de votre mot de passe",
+      `
+        <h1 style="color: #1E3A8A">Réinitialisation du mot de passe</h1>
+        <p>Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe :</p>
+        <p><a href="${resetLink}">Réinitialiser mon mot de passe</a></p>
+        <p>⚠️ Ce lien expire dans 15 minutes.</p>
+      `
+    );
+
+    res.json({ message: "Si l'email existe, un lien a été envoyé" });
+  } catch (error) {
+    console.error("Erreur forgotPassword :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      res.status(400).json({ message: "Token et nouveau mot de passe requis" });
+      return;
+    }
+
+    let payload: { userId: string };
+    try {
+      payload = verifyResetToken(token);
+    } catch (err) {
+      res.status(401).json({ message: "Token invalide ou expiré" });
+      return;
+    }
+
+    const userRepo = AppDataSource.getRepository(User);
+    if (!isNaN(Number(payload.userId))) {
+      const user = await userRepo.findOne({
+        where: { id: Number(payload.userId) },
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "Utilisateur non trouvé" });
+        return;
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      user.password = hashed;
+      await userRepo.save(user);
+
+      res.json({ message: "Mot de passe mis à jour avec succès" });
+    } else {
+      res.status(401).json({
+        message: "L'id utilisateur passé dans le payload n'est pas un nmobre",
+      });
+    }
+  } catch (error) {
+    console.error("Erreur resetPassword :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
