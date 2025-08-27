@@ -6,6 +6,7 @@ import {
   updateSubscription,
   deleteSubscription,
   getSubscriptionByUserId,
+  askForChangeSubscription,
 } from "../controllers/subscription-controller";
 import {
   authenticateToken,
@@ -29,6 +30,12 @@ router.get(
   getSubscriptionByUserId
 );
 router.post("/", authenticateToken, requireRole("admin"), createSubscription);
+router.post(
+  "/askForChange",
+  authenticateToken,
+  requireRole("sportsman"),
+  askForChangeSubscription
+);
 router.patch(
   "/:id",
   authenticateToken,

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { LinkedSessions } from "../models/linked-sessions-model";
+import { sendMail } from "../utils/mailService";
+import { Sportsman } from "../models/users-model";
 
 // Create a linked session
 export const createLinkedSession = async (
@@ -11,7 +13,25 @@ export const createLinkedSession = async (
     const { userId, sessionId } = req.body;
     if (!userId || !sessionId) {
       res.status(400).json({ message: "userId and sessionId are required" });
+      return;
     }
+
+    // Vérifier si userId est un sportif
+    const sportsmanRepo = AppDataSource.getRepository(Sportsman);
+    const sportsman = await sportsmanRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ["user"],
+    });
+
+    if (sportsman && sportsman.user && sportsman.user.email) {
+      // Envoyer le mail au sportif
+      await sendMail(
+        sportsman.user.email,
+        "HYPERION - Nouvel entrainement disponible",
+        `<h1 style="color: #1E3A8A">HYPERION - Nouvel entrainement disponible</h1><p>Votre coach vient de vous partager un nouvel entrainement. Vous pouvez le retrouvez via votre application HYPERION CONNECT.</p>`
+      );
+    }
+
     const repo = AppDataSource.getRepository(LinkedSessions);
     const linkedSession = repo.create({ userId, sessionId });
     const saved = await repo.save(linkedSession);

@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Subscriptions } from "../models/subscription-model";
 import { Files } from "../models/files-model";
-import { Sportsman } from "../models/users-model";
+import { Sportsman, User, Admin } from "../models/users-model";
+import { sendMail } from "../utils/mailService";
 
 export const getAllSubscriptions = async (
   _: Request,
@@ -213,6 +214,57 @@ export const deleteSubscription = async (
     res.status(200).json({ message: "Abonnement supprimé avec succès." });
   } catch (error) {
     console.error("Erreur suppression abonnement :", error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+};
+
+export const askForChangeSubscription = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.body.userId;
+    if (!userId) {
+      res.status(400).json({ message: "userId requis" });
+      return;
+    }
+
+    // Récupérer l'utilisateur demandeur
+    const userRepo = AppDataSource.getRepository(User);
+    const user = await userRepo.findOneBy({ id: userId });
+    if (!user) {
+      res.status(404).json({ message: "Utilisateur introuvable" });
+      return;
+    }
+
+    // Récupérer tous les admins
+    const adminRepo = AppDataSource.getRepository(Admin);
+    const admins = await adminRepo.find({ relations: ["user"] });
+
+    // Envoyer le mail à chaque admin
+    for (const admin of admins) {
+      if (admin.user?.email) {
+        await sendMail(
+          admin.user.email,
+          "HYPERION - Demande de changement d'abonnement",
+          `<h1 style="color: #1E3A8A">Demande de changement d'abonnement</h1>
+          <p>L'utilisateur suivant a fait une demande de changement d'abonnement :</p>
+          <ul>
+            <li>Nom : ${user.lastName}</li>
+            <li>Prénom : ${user.firstName}</li>
+            <li>Email : ${user.email}</li>
+            <li>Téléphone : ${user.phone || "Non renseigné"}</li>
+          </ul>`
+        );
+      }
+    }
+
+    res.status(200).json({ message: "Demande envoyée aux administrateurs." });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la demande de changement d'abonnement :",
+      error
+    );
     res.status(500).json({ message: "Erreur serveur." });
   }
 };
