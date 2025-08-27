@@ -18,6 +18,8 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Files } from "../models/files-model";
 import { Categories } from "../models/categories-model";
+import { sendMail } from "../utils/mailService";
+import { generateResetToken } from "../utils/resetToken";
 
 // Get all users
 export const getAllUsers = async (
@@ -621,6 +623,23 @@ export const createNewUserWithProfile = async (
       profile: createdProfile,
       tempPassword: isTempPassword ? userPassword : undefined,
     });
+
+    // Create welcome email and reset password with it
+    const token = generateResetToken(savedUser.id.toString());
+
+    // Lien de reset → ton front va le gérer
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    await sendMail(
+      savedUser.email,
+      "HYPERION - Création de votre compte",
+      `<h1 style="color: #1E3A8A">Création de votre compte</h1>
+        <p>Votre compte est désormais créé, vous pouvez utiliser le lien ci-dessous pour créér votre mot de passe :</p>
+        <ul>
+          <li>Email : ${savedUser.email}</li>
+          <p><a href="${resetLink}">Créér mon mot de passe</a></p>
+        </ul>`
+    );
   } catch (error) {
     console.error("Error creating user and profile:", error);
     res.status(500).json({ message: "Internal server error" });
