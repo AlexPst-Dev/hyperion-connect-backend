@@ -131,6 +131,34 @@ export const createEvent = async (
           event: savedEvent,
         });
         await hyperionEventsRepo.save(specificEvent);
+        // Envoi du mail à tous les utilisateurs sauf les admins
+        const allUserRepo = AppDataSource.getRepository(User);
+        const users = await allUserRepo.find({
+          where: {
+            profileCategory: In([
+              "sportsman",
+              "coach",
+              "medic",
+              "free",
+              "partner",
+            ]),
+          },
+        });
+        for (const user of users) {
+          if (user.email) {
+            sendMail(
+              user.email,
+              "HYPERION - Publication événement",
+              `<h1 style="color: #1E3A8A">Un nouvel événement vient d'être publié.</h1>
+              <p>Titre : ${savedEvent.title}</p>
+              <p>Description : ${
+                savedEvent.description || "Aucune description"
+              }</p>
+              <p>Date : ${savedEvent.date} à ${savedEvent.location}</p>
+              <p>Consultez la plateforme pour plus d'informations.</p>`
+            );
+          }
+        }
         break;
       case EventCategory.HYPERLINK:
         specificEvent = hyperlinkEventsRepo.create({
@@ -186,6 +214,47 @@ export const createEvent = async (
           maxParticipants: specificEventData.maxParticipants || null,
         });
         await sportingActivityEventsRepo.save(specificEvent);
+
+        // 1. Mail au sportif créateur
+        const creatorId = responsibleIds?.split(";")[0];
+        if (creatorId) {
+          const userRepo = AppDataSource.getRepository(User);
+          const creator = await userRepo.findOneBy({
+            id: parseInt(creatorId, 10),
+          });
+          if (creator && creator.email) {
+            await sendMail(
+              creator.email,
+              "HYPERION - Publication d'un événement",
+              `<h1 style="color: #1E3A8A">Publication d'un événement</h1>
+              <p>Votre événement à bien été envoyé aux administrateurs d'HYPERION pour vérification avant validation. Merci !</p>
+              `
+            );
+          }
+        }
+
+        // 2. Mail aux admins (déjà présent)
+        const usersRepo = AppDataSource.getRepository(User);
+        const admins = await usersRepo.find({
+          where: {
+            profileCategory: In(["admin"]),
+          },
+        });
+        for (const user of admins) {
+          if (user.email) {
+            await sendMail(
+              user.email,
+              "HYPERION - Nouvelle activité sportive à valider",
+              `<h1 style="color: #1E3A8A">Une nouvelle activité sportive requiert votre validation</h1>
+              <p>Titre : ${savedEvent.title}</p>
+              <p>Description : ${
+                savedEvent.description || "Aucune description"
+              }</p>
+              <p>Date : ${savedEvent.date} à ${savedEvent.location}</p>
+              <p>Consultez la plateforme pour plus d'informations.</p>`
+            );
+          }
+        }
         break;
       default:
         break;
@@ -711,5 +780,129 @@ export const deleteEvent = async (
     res.status(500).json({
       message: "Erreur serveur lors de la suppression de l'événement",
     });
+  }
+};
+
+export const notifyEventValidation = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { eventId } = req.body;
+  if (!eventId) {
+    res.status(400).json({ message: "eventId requis" });
+    return;
+  }
+
+  try {
+    const eventRepo = AppDataSource.getRepository(Events);
+    const event = await eventRepo.findOneBy({ id: eventId });
+
+    if (!event || event.eventCategory !== EventCategory.SPORTING_ACTIVITY) {
+      res.status(404).json({ message: "Activité sportive non trouvée" });
+      return;
+    }
+
+    // On suppose que le créateur est le premier ID dans responsibleIds
+    const sportsmanId = event.responsibleIds?.split(";")[0];
+    if (!sportsmanId) {
+      res
+        .status(404)
+        .json({ message: "Aucun sportif associé à cette activité" });
+      return;
+    }
+
+    const userRepo = AppDataSource.getRepository(User);
+    const sportsman = await userRepo.findOneBy({
+      id: parseInt(sportsmanId, 10),
+    });
+
+    if (!sportsman || !sportsman.email) {
+      res.status(404).json({ message: "Sportif introuvable ou sans email" });
+      return;
+    }
+
+    await sendMail(
+      sportsman.email,
+      "HYPERION - Evénément accepté",
+      `<h1 style="color: #1E3A8A">HYPERION - Evénément accepté</h1>
+      <p>L'événement que vous avez publié a bien été accepté. Il est maintenant visible sur l'application.</p>
+      <p>Titre : ${event.title}</p>
+      <p>Date : ${event.date} à ${event.location}</p>
+      <p>Vous pouvez maintenant la retrouver sur la plateforme.</p>`
+    );
+
+    res.status(200).json({ message: "Mail envoyé au sportif." });
+  } catch (error) {
+    console.error("Erreur lors de la notification :", error);
+    res.status(500).json({ message: "Erreur serveur lors de la notification" });
+  }
+};
+
+export const notifySportingActivityParticipation = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { eventId, sportsmanId } = req.body;
+  if (!eventId || !sportsmanId) {
+    res.status(400).json({ message: "eventId et sportsmanId requis" });
+    return;
+  }
+
+  try {
+    const eventRepo = AppDataSource.getRepository(Events);
+    const event = await eventRepo.findOneBy({ id: eventId });
+
+    if (!event || event.eventCategory !== EventCategory.SPORTING_ACTIVITY) {
+      res.status(404).json({ message: "Activité sportive non trouvée" });
+      return;
+    }
+
+    // Récupérer le sportif qui participe
+    const userRepo = AppDataSource.getRepository(User);
+    const participant = await userRepo.findOneBy({ id: sportsmanId });
+    if (!participant || !participant.email) {
+      res
+        .status(404)
+        .json({ message: "Sportif participant introuvable ou sans email" });
+      return;
+    }
+
+    // Récupérer le créateur de l'événement
+    const creatorId = event.responsibleIds?.split(";")[0];
+    if (!creatorId) {
+      res.status(404).json({ message: "Créateur de l'événement introuvable" });
+      return;
+    }
+    const creator = await userRepo.findOneBy({ id: parseInt(creatorId, 10) });
+    if (!creator || !creator.email) {
+      res.status(404).json({ message: "Créateur introuvable ou sans email" });
+      return;
+    }
+
+    // Mail au participant
+    await sendMail(
+      participant.email,
+      "HYPERION - Participation événement",
+      `<h1 style="color: #1E3A8A">Participation événement</h1>
+      <p>Vous êtes bien inscrit à l'activité sportive :</p>
+      <p>Titre : ${event.title}</p>
+      <p>Date : ${event.date} à ${event.location}</p>
+      <p>Retrouvez toutes les infos sur la plateforme.</p>`
+    );
+
+    // Mail au créateur
+    await sendMail(
+      creator.email,
+      "HYPERION - Votre événement",
+      `<h1 style="color: #1E3A8A">Votre événement</h1>
+      <p>${participant.lastName} ${participant.firstName} participe à votre événement : ${event.title} (${event.date} à ${event.location})</p>`
+    );
+
+    res
+      .status(200)
+      .json({ message: "Mails envoyés au participant et au créateur." });
+  } catch (error) {
+    console.error("Erreur lors de la notification de participation :", error);
+    res.status(500).json({ message: "Erreur serveur lors de la notification" });
   }
 };
