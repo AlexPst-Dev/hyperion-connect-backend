@@ -7,6 +7,7 @@ import {
   getOffersByCompanyIdAndCategory,
   updateOffer,
   deleteOffer,
+  notifySponsorshipApplication,
 } from "../controllers/offer-controller";
 import {
   authenticateToken,
@@ -28,6 +29,12 @@ router.get(
 
 // Private
 router.post("/", authenticateToken, requireRole("admin"), createOffer);
+router.post(
+  "/notifySponsorshipApplication",
+  authenticateToken,
+  requireRole("sportsman"),
+  notifySponsorshipApplication
+);
 router.patch(
   "/:id",
   authenticateToken,

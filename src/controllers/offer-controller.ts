@@ -5,6 +5,8 @@ import { DiscountOffer } from "../models/offers-model";
 import { SponsorshipOffer } from "../models/offers-model";
 import { Companies } from "../models/companies-model";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { sendMail } from "../utils/mailService";
+import { User } from "../models/users-model";
 
 export const createOffer = async (
   req: AuthenticatedRequest,
@@ -404,5 +406,85 @@ export const deleteOffer = async (
     res
       .status(500)
       .json({ message: "Erreur serveur lors de la suppression de l'offre." });
+  }
+};
+
+export const notifySponsorshipApplication = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { offerId, userId, message } = req.body;
+  if (!offerId || !userId || !message) {
+    res.status(400).json({ message: "offerId, userId et message requis." });
+    return;
+  }
+
+  try {
+    const offerRepo = AppDataSource.getRepository(Offers);
+    const companyRepo = AppDataSource.getRepository(Companies);
+    const userRepo = AppDataSource.getRepository(User);
+
+    // Récupérer l'offre
+    const offer = await offerRepo.findOne({ where: { id: offerId } });
+    if (!offer || offer.offerCategory !== OfferCategory.SPONSORSHIP) {
+      res.status(404).json({ message: "Offre de sponsoring introuvable." });
+      return;
+    }
+
+    // Récupérer l'entreprise et son responsable
+    const company = await companyRepo.findOne({
+      where: { id: offer.companyId },
+    });
+    if (!company || !company.responsibleId) {
+      res
+        .status(404)
+        .json({ message: "Entreprise ou responsable introuvable." });
+      return;
+    }
+    const responsible = await userRepo.findOne({
+      where: { id: company.responsibleId },
+    });
+    if (!responsible || !responsible.email) {
+      res
+        .status(404)
+        .json({ message: "Responsable introuvable ou sans email." });
+      return;
+    }
+
+    // Récupérer le sportif candidat
+    const candidate = await userRepo.findOne({ where: { id: userId } });
+    if (!candidate) {
+      res.status(404).json({ message: "Utilisateur candidat introuvable." });
+      return;
+    }
+
+    // Envoi du mail au responsable
+    await sendMail(
+      responsible.email,
+      "HYPERION - Nouvelle candidature à votre offre de sponsoring",
+      `<h1 style="color: #1E3A8A">Nouvelle candidature à votre offre de sponsoring</h1>
+      <p><strong>Offre :</strong> ${offer.title}</p>
+      <p><strong>Entreprise :</strong> ${company.name}</p>
+      <hr>
+      <p><strong>Message du sportif :</strong></p>
+      <blockquote>${message}</blockquote>
+      <hr>
+      <p><strong>Infos du sportif :</strong></p>
+      <ul>
+        <li>Nom : ${candidate.lastName}</li>
+        <li>Prénom : ${candidate.firstName}</li>
+        <li>Email : ${candidate.email}</li>
+        <li>ID : ${candidate.id}</li>
+      </ul>`
+    );
+
+    res
+      .status(200)
+      .json({ message: "Mail envoyé au responsable de l'entreprise." });
+  } catch (error) {
+    console.error("Erreur lors de l'envoi du mail de candidature :", error);
+    res
+      .status(500)
+      .json({ message: "Erreur serveur lors de l'envoi du mail." });
   }
 };
