@@ -27,7 +27,7 @@ router.get("/:id", getFileById);
 router.post(
   "/",
   authenticateToken,
-  requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
+  requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   upload.single("file"),
   handleMulterError,
   createFile
