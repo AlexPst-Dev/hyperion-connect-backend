@@ -1,3 +1,4 @@
+import { config } from "../config/config";
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Offers, OfferCategory } from "../models/offers-model";
@@ -461,7 +462,7 @@ export const notifySponsorshipApplication = async (
     // Envoi du mail au responsable
     await sendMail(
       responsible.email,
-      "HYPERION - Nouvelle candidature à votre offre de sponsoring",
+      `${config.appName} - Nouvelle candidature à votre offre de sponsoring`,
       `<h1 style="color: #1E3A8A">Nouvelle candidature à votre offre de sponsoring</h1>
       <p><strong>Offre :</strong> ${offer.title}</p>
       <p><strong>Entreprise :</strong> ${company.name}</p>

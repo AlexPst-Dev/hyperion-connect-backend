@@ -1,3 +1,4 @@
+import { config } from "../config/config";
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Events, EventCategory } from "../models/events-model";
@@ -148,7 +149,7 @@ export const createEvent = async (
           if (user.email) {
             sendMail(
               user.email,
-              "HYPERION - Publication événement",
+              `${config.appName} - Publication événement`,
               `<h1 style="color: #1E3A8A">Un nouvel événement vient d'être publié.</h1>
               <p>Titre : ${savedEvent.title}</p>
               <p>Description : ${
@@ -175,8 +176,8 @@ export const createEvent = async (
           if (member.email) {
             await sendMail(
               member.email,
-              "HYPERION - Evénement Hyperlink",
-              `<h1 style="color: #1E3A8A">HYPERION - Evénement Hyperlink</h1>
+              `${config.appName} - Evénement Hyperlink`,
+              `<h1 style="color: #1E3A8A">${config.appName} - Evénement Hyperlink</h1>
               <p>Titre : ${
                 savedEvent.title
               }</p><p>Consultez la plateforme pour plus d'informations.</p>
@@ -225,9 +226,9 @@ export const createEvent = async (
           if (creator && creator.email) {
             await sendMail(
               creator.email,
-              "HYPERION - Publication d'un événement",
+              `${config.appName} - Publication d'un événement`,
               `<h1 style="color: #1E3A8A">Publication d'un événement</h1>
-              <p>Votre événement à bien été envoyé aux administrateurs d'HYPERION pour vérification avant validation. Merci !</p>
+              <p>Votre événement à bien été envoyé aux administrateurs de ${config.appName} pour vérification avant validation. Merci !</p>
               `
             );
           }
@@ -244,7 +245,7 @@ export const createEvent = async (
           if (user.email) {
             await sendMail(
               user.email,
-              "HYPERION - Nouvelle activité sportive à valider",
+              `${config.appName} - Nouvelle activité sportive à valider`,
               `<h1 style="color: #1E3A8A">Une nouvelle activité sportive requiert votre validation</h1>
               <p>Titre : ${savedEvent.title}</p>
               <p>Description : ${
@@ -685,8 +686,8 @@ export const updateEvent = async (
               if (participant.email) {
                 await sendMail(
                   participant.email,
-                  "HYPERION - Votre séance a été modifiée par votre coach",
-                  `<h1 style="color: #1E3A8A">HYPERION - Votre séance a été modifiée par votre coach</h1>
+                  `${config.appName} - Votre séance a été modifiée par votre coach`,
+                  `<h1 style="color: #1E3A8A">${config.appName} - Votre séance a été modifiée par votre coach</h1>
                   <p>Titre : ${event.title}</p>
                   <p>Votre coach vient d'effectuer une modification à l'une de vos séances à venir.</p>`
                 );
@@ -823,8 +824,8 @@ export const notifyEventValidation = async (
 
     await sendMail(
       sportsman.email,
-      "HYPERION - Evénément accepté",
-      `<h1 style="color: #1E3A8A">HYPERION - Evénément accepté</h1>
+      `${config.appName} - Evénément accepté`,
+      `<h1 style="color: #1E3A8A">${config.appName} - Evénément accepté</h1>
       <p>L'événement que vous avez publié a bien été accepté. Il est maintenant visible sur l'application.</p>
       <p>Titre : ${event.title}</p>
       <p>Date : ${event.date} à ${event.location}</p>
@@ -882,7 +883,7 @@ export const notifySportingActivityParticipation = async (
     // Mail au participant
     await sendMail(
       participant.email,
-      "HYPERION - Participation événement",
+      `${config.appName} - Participation événement`,
       `<h1 style="color: #1E3A8A">Participation événement</h1>
       <p>Vous êtes bien inscrit à l'activité sportive :</p>
       <p>Titre : ${event.title}</p>
@@ -893,7 +894,7 @@ export const notifySportingActivityParticipation = async (
     // Mail au créateur
     await sendMail(
       creator.email,
-      "HYPERION - Votre événement",
+      `${config.appName} - Votre événement`,
       `<h1 style="color: #1E3A8A">Votre événement</h1>
       <p>${participant.lastName} ${participant.firstName} participe à votre événement : ${event.title} (${event.date} à ${event.location})</p>`
     );

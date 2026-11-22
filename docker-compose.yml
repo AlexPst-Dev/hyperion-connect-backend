@@ -1,0 +1,71 @@
+# Full SportLink stack: MySQL, the API and the web app.
+#
+#   cp .env.example .env    # then fill in the secrets
+#   docker compose up -d --build
+#
+# Web app on http://localhost:8080, API on http://localhost:3000/api.
+# With DEMO_MODE=true the API seeds fictional data on first start and resets
+# it every night at 03:00 (Europe/Paris).
+#
+# The web app is built from the frontend repository. By default it expects the
+# two repositories side by side; FRONTEND_CONTEXT can also be a git URL, e.g.
+# https://github.com/<owner>/hyperion-connect-frontend.git#main
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-sportlink}
+      MYSQL_USER: ${DB_USER:-sportlink}
+      MYSQL_PASSWORD: ${DB_PASS:?DB_PASS is required}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_NAME: ${APP_NAME:-SportLink}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-sportlink}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME:-sportlink}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_RESET_SECRET: ${JWT_RESET_SECRET:?JWT_RESET_SECRET is required}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      DEMO_MODE: ${DEMO_MODE:-false}
+    ports:
+      - "${API_PORT:-3000}:3000"
+
+  web:
+    build:
+      context: ${FRONTEND_CONTEXT:-../hyperion-connect-frontend}
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      # Address the visitor's browser uses to reach the API.
+      EXPO_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:3000/api}
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  db-data:

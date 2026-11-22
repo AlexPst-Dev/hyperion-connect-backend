@@ -1,13 +1,12 @@
 import jwt from "jsonwebtoken";
+import { config } from "../config/config";
 
-const RESET_SECRET = process.env.JWT_RESET_SECRET || "reset-secret";
-
-// Génère un token valable 15 minutes
+// Password reset token, valid for 15 minutes, signed with its own secret so a
+// reset link can never be used as a session token (and the other way round).
 export const generateResetToken = (userId: string): string => {
-  return jwt.sign({ userId }, RESET_SECRET, { expiresIn: "15m" });
+  return jwt.sign({ userId }, config.jwt.resetSecret, { expiresIn: "15m" });
 };
 
-// Vérifie le token
 export const verifyResetToken = (token: string): { userId: string } => {
-  return jwt.verify(token, RESET_SECRET) as { userId: string };
+  return jwt.verify(token, config.jwt.resetSecret) as { userId: string };
 };

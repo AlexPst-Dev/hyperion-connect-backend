@@ -1,28 +1,31 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import { config } from "../config/config";
 
-dotenv.config();
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.hostinger.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// Without SMTP settings (local development, public demo), e-mails are not sent:
+// the message is logged instead, so every flow keeps working.
+const transporter =
+  config.smtp.host && config.smtp.user
+    ? nodemailer.createTransport({
+        host: config.smtp.host,
+        port: config.smtp.port,
+        secure: config.smtp.port === 465,
+        auth: { user: config.smtp.user, pass: config.smtp.pass },
+      })
+    : null;
 
 export const sendMail = async (to: string, subject: string, html: string) => {
+  if (!transporter) {
+    console.info(`[mail disabled] "${subject}" to ${to}`);
+    return;
+  }
   try {
     await transporter.sendMail({
-      from: `"Hyperion Connect - " <${process.env.SMTP_USER}>`,
+      from: `"${config.appName}" <${config.smtp.user}>`,
       to,
       subject,
       html,
     });
-    console.log("✅ Mail envoyé !");
   } catch (error) {
-    console.error("❌ Erreur envoi mail :", error);
+    console.error("Mail sending failed:", error);
   }
 };

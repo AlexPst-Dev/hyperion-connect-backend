@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 
 const createToken = (payload: any) =>
-  jwt.sign(payload, process.env.JWT_SECRET || "secret", { expiresIn: "1h" });
+  jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "1h" });
 
 /*
  * Testing the authenticateToken middleware

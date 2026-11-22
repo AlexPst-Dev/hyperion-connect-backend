@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/users-model";
 import { authenticateToken } from "../middleware/auth.middleware";
 import { AppDataSource } from "../data-source";
+import { config } from "../config/config";
 
 const router = Router();
 
@@ -47,7 +48,7 @@ router.post(
           type: "qr_verification",
           exp: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
         } as QRTokenPayload,
-        process.env.JWT_SECRET!
+        config.jwt.secret
       );
 
       res.json({
@@ -72,7 +73,7 @@ router.get(
       // Vérifier et décoder le token
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET!
+        config.jwt.secret
       ) as QRTokenPayload;
 
       if (decoded.type !== "qr_verification") {
@@ -228,7 +229,7 @@ router.get("/verify-page/:token", async (req: Request, res: Response) => {
     </head>
     <body>
         <div class="container">
-            <div class="logo">🏃‍♀️ HYPERION CONNECT</div>
+            <div class="logo">${config.appName}</div>
             <h1>Vérification de compte sportif</h1>
             <div id="result" class="loading">
                 <div style="text-align: center;">
@@ -297,7 +298,7 @@ router.get("/verify-page/:token", async (req: Request, res: Response) => {
                                         <p><strong>📅 Membre depuis:</strong> \${formatDate(data.user.memberSince)}</p>
                                         <hr style="margin: 15px 0; border: 1px solid #dee2e6;">
                                         <p style="text-align: center; color: #28a745; font-weight: bold;">
-                                            Ce membre est autorisé à accéder aux services Hyperion Connect
+                                            Ce membre est autorisé à accéder aux services ${config.appName}
                                         </p>
                                     </div>
                                 </div>

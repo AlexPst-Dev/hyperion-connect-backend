@@ -1,32 +1,22 @@
 import "reflect-metadata";
+import path from "path";
 import { DataSource } from "typeorm";
 import { config } from "./config/config";
-import * as dotenv from "dotenv";
-import path from "path";
 
-dotenv.config();
+// Compiled build (dist/*.js) or ts-node in development and tests (src/*.ts).
+const ext = __filename.endsWith(".ts") ? "{js,ts}" : "js";
 
-// Détermine si on est en mode développement ou production
-const isDev =
-  process.env.NODE_ENV !== "production" && __filename.endsWith(".ts");
-
+// The schema is only ever changed by migrations (never `synchronize`), so the
+// production database and the demo database are built the same way.
 export const AppDataSource = new DataSource({
   type: "mysql",
-  driver: require("mysql2"),
   host: config.db.host,
   port: config.db.port,
   username: config.db.username,
   password: config.db.password,
   database: config.db.database,
-  synchronize: config.db.synchronize,
+  synchronize: false,
   logging: config.db.logging,
-  dropSchema: config.db.dropSchema,
-  // Utilise les bons chemins selon l'environnement
-  entities: isDev
-    ? [path.join(__dirname, "/models/*.{js,ts}")]
-    : [path.join(__dirname, "/models/*.js")],
-  migrations: isDev
-    ? [path.join(__dirname, "/migrations/*.{js,ts}")]
-    : [path.join(__dirname, "/migrations/*.js")],
-  subscribers: [],
+  entities: [path.join(__dirname, `models/*.${ext}`)],
+  migrations: [path.join(__dirname, `migrations/*.${ext}`)],
 });

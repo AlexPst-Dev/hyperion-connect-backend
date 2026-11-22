@@ -1,3 +1,4 @@
+import { config } from "../config/config";
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { LinkedSessions } from "../models/linked-sessions-model";
@@ -27,8 +28,8 @@ export const createLinkedSession = async (
       // Envoyer le mail au sportif
       await sendMail(
         sportsman.user.email,
-        "HYPERION - Nouvel entrainement disponible",
-        `<h1 style="color: #1E3A8A">HYPERION - Nouvel entrainement disponible</h1><p>Votre coach vient de vous partager un nouvel entrainement. Vous pouvez le retrouvez via votre application HYPERION CONNECT.</p>`
+        `${config.appName} - Nouvel entrainement disponible`,
+        `<h1 style="color: #1E3A8A">${config.appName} - Nouvel entrainement disponible</h1><p>Votre coach vient de vous partager un nouvel entrainement. Vous pouvez le retrouvez via votre application ${config.appName}.</p>`
       );
     }
 

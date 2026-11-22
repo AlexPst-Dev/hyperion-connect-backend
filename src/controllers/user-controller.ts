@@ -1,3 +1,4 @@
+import { config } from "../config/config";
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import {
@@ -14,12 +15,31 @@ import { Graphs } from "../models/graphs-model";
 import { Companies } from "../models/companies-model";
 import { In } from "typeorm";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { Files } from "../models/files-model";
 import { Categories } from "../models/categories-model";
 import { sendMail } from "../utils/mailService";
 import { generateResetToken } from "../utils/resetToken";
+
+// Fields a user may change on their own account. Role, activation and
+// Hyperlink network membership are admin decisions;
+// id, password and timestamps are never set through these routes.
+const SELF_EDITABLE_FIELDS = [
+  "firstName", "lastName", "email", "phone", "street", "city", "postalCode",
+  "description", "filePictureId", "birthDate", "stravaLink", "facebookLink",
+  "instagramLink", "linkedinLink", "tiktokLink", "youtubeLink",
+] as const;
+const ADMIN_ONLY_FIELDS = ["isActive", "isInHyperlinkNetwork"] as const;
+
+function pickEditableUserFields(body: Record<string, unknown>, isAdmin: boolean): Partial<User> {
+  const allowed: readonly string[] = isAdmin
+    ? [...SELF_EDITABLE_FIELDS, ...ADMIN_ONLY_FIELDS]
+    : SELF_EDITABLE_FIELDS;
+  return Object.fromEntries(
+    Object.entries(body).filter(([key]) => allowed.includes(key))
+  ) as Partial<User>;
+}
 
 // Get all users
 export const getAllUsers = async (
@@ -369,9 +389,7 @@ export const updateUserById = async (
       return;
     }
 
-    const { password, id, ...updateData } = req.body;
-
-    Object.assign(user, updateData);
+    Object.assign(user, pickEditableUserFields(req.body, req.user?.role === "admin"));
 
     await userRepository.save(user);
 
@@ -404,10 +422,7 @@ export const updateUserByProfileAndId = async (
           message: `Invalid profile category for user ${id}. Expected '${user.profileCategory}', received '${profileCategory}'.`,
         });
       } else {
-        delete data.id;
-        delete data.password;
-
-        Object.assign(user, data);
+        Object.assign(user, pickEditableUserFields(data, req.user?.role === "admin"));
         await userRepo.save(user);
 
         const updateProfile = async <T>(
@@ -617,9 +632,11 @@ export const createNewUserWithProfile = async (
         return;
     }
 
+    // The hash is still on the saved entity in memory: never send it back.
+    const { password: _hash, ...userSafe } = savedUser;
     res.status(201).json({
       message: "User and profile created successfully",
-      user: savedUser,
+      user: userSafe,
       profile: createdProfile,
       tempPassword: isTempPassword ? userPassword : undefined,
     });
@@ -628,11 +645,11 @@ export const createNewUserWithProfile = async (
     const token = generateResetToken(savedUser.id.toString());
 
     // Lien de reset → ton front va le gérer
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetLink = `${config.frontendUrl}/reset-password?token=${token}`;
 
     await sendMail(
       savedUser.email,
-      "HYPERION - Création de votre compte",
+      `${config.appName} - Création de votre compte`,
       `<h1 style="color: #1E3A8A">Création de votre compte</h1>
         <p>Votre compte est désormais créé, vous pouvez utiliser le lien ci-dessous pour créér votre mot de passe :</p>
         <ul>

@@ -15,7 +15,7 @@ export const verifyToken = (token: string): any => {
 export function generateTestJWT(user: User) {
   return jwt.sign(
     { id: user.id, role: user.profileCategory },
-    process.env.JWT_SECRET || "your_secret_here",
+    config.jwt.secret,
     { expiresIn: "1h" }
   );
 }

@@ -18,7 +18,7 @@ import {
 const router = Router();
 
 // Offer routes
-// Public
+// Signed-in users only (guard applied in server.ts)
 router.get("/", getAllOffers);
 router.get("/:id", getOfferById);
 router.get("/company/:companyId", getOffersByCompanyId);

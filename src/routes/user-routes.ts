@@ -19,12 +19,10 @@ import {
   requireSelf,
   requireSelfOrAdmin,
 } from "../middleware/auth.middleware";
-import { corsForImages } from "../middleware/corsForImages.middleware";
 
 const router = Router();
 
-// User routes
-// Public
+// User routes (all signed-in: see server.ts)
 router.get("/", getAllUsers);
 router.get("/category/:category", getUsersByProfileCategory);
 
@@ -47,10 +45,9 @@ router.post(
   createNewUserWithProfile
 );
 
-router.get("/:id", corsForImages, getUserById);
+router.get("/:id", getUserById);
 router.put(
   "/:id",
-  corsForImages,
   authenticateToken,
   requireSelfOrAdmin(),
   updateUserById

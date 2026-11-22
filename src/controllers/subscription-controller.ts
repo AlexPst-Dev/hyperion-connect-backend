@@ -1,3 +1,4 @@
+import { config } from "../config/config";
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Subscriptions } from "../models/subscription-model";
@@ -246,7 +247,7 @@ export const askForChangeSubscription = async (
       if (admin.user?.email) {
         await sendMail(
           admin.user.email,
-          "HYPERION - Demande de changement d'abonnement",
+          `${config.appName} - Demande de changement d'abonnement`,
           `<h1 style="color: #1E3A8A">Demande de changement d'abonnement</h1>
           <p>L'utilisateur suivant a fait une demande de changement d'abonnement :</p>
           <ul>

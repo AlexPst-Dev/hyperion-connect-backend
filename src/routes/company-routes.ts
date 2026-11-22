@@ -12,7 +12,7 @@ import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 const router = Router();
 
 // Company routes
-// Public
+// Signed-in users only (guard applied in server.ts)
 router.get("/", getAllCompanies);
 router.get("/:id", getCompanyById);
 router.get("/responsible/:id", getCompanyResponsibleById);

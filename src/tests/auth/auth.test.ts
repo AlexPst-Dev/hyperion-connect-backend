@@ -2,7 +2,7 @@ import request from "supertest";
 import { createApp } from "../../server";
 import { AppDataSource } from "../../data-source";
 import { User } from "../../models/users-model";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Express } from "express";
 
 let app: Express;

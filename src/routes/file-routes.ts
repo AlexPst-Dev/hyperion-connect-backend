@@ -12,15 +12,10 @@ import {
 } from "../controllers/file-controller";
 import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 import { handleMulterError, upload } from "../middleware/multer.middleware";
-import {
-  corsForDownload,
-  corsForImages,
-} from "../middleware/corsForImages.middleware";
 
 const router = Router();
 
-// File routes
-// Public
+// File routes (all signed-in: see server.ts)
 router.get("/:id", getFileById);
 
 // Private
@@ -35,25 +30,20 @@ router.post(
 
 router.get(
   "/download/:id",
-  corsForDownload,
   authenticateToken,
   requireRole(["admin", "coach", "medic", "sportsman", "partner"]),
   downloadFile
 );
 
-router.options("/image/:id", corsForImages);
 router.get(
   "/image/:id",
-  corsForImages,
   authenticateToken,
   requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   serveImage
 );
 
-router.options("/companyImage/:id", corsForImages);
 router.get(
   "/companyImage/:id",
-  corsForImages,
   authenticateToken,
   requireRole(["admin", "coach", "medic", "sportsman", "partner", "free"]),
   serveCompanyImage

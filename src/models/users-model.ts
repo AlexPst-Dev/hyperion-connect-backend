@@ -44,7 +44,9 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
-  @Column()
+  // Never returned by queries (select: false): the hash cannot leak through an
+  // API response or a relation. Load it explicitly where it is checked.
+  @Column({ select: false })
   password: string;
 
   @Column({ nullable: true })

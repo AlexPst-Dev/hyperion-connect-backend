@@ -1,3 +1,4 @@
+import { config } from "../config/config";
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { AppDataSource } from "../data-source";
@@ -11,7 +12,7 @@ import {
   Partner,
   Admin,
 } from "../models/users-model";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt";
 import { sendMail } from "../utils/mailService";
 import { generateResetToken, verifyResetToken } from "../utils/resetToken";
@@ -28,7 +29,12 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { email } });
+    const user = await userRepository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .leftJoinAndSelect("user.filePicture", "filePicture")
+      .where("user.email = :email", { email })
+      .getOne();
     if (!user) {
       res.status(401).json({ message: "Identifiants invalides" });
       return;
@@ -62,12 +68,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const userRepo = AppDataSource.getRepository(User);
-    const sportsmanRepo = AppDataSource.getRepository(Sportsman);
-    const coachRepo = AppDataSource.getRepository(Coach);
-    const medicRepo = AppDataSource.getRepository(Medic);
     const freeRepo = AppDataSource.getRepository(Free);
-    const partnerRepo = AppDataSource.getRepository(Partner);
-    const adminRepo = AppDataSource.getRepository(Admin);
 
     const {
       firstName,
@@ -87,10 +88,16 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       linkedinLink,
       tiktokLink,
       youtubeLink,
-      isActive,
-      profileCategory,
-      ...profileData
     } = req.body;
+
+    // Public sign-up only creates free accounts. Every other role is created
+    // by an administrator (POST /api/users): the client must not choose it.
+    const profileCategory = ProfileCategory.FREE;
+
+    if (!email || !password || !firstName || !lastName) {
+      res.status(400).json({ message: "Champs obligatoires manquants" });
+      return;
+    }
 
     const existingUser = await userRepo.findOne({ where: { email } });
     if (existingUser) {
@@ -118,78 +125,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       linkedinLink,
       tiktokLink,
       youtubeLink,
-      isActive,
       profileCategory,
     });
 
     const savedUser = await userRepo.save(newUser);
 
-    let profile;
-    switch (profileCategory) {
-      case ProfileCategory.SPORTSMAN:
-        profile = sportsmanRepo.create({
-          user: savedUser,
-          sportCategoryId: profileData.sportCategoryId || null,
-          availableDays: profileData.availableDays || null,
-          availableTime: profileData.availableTime || null,
-          listMedicNotes: profileData.listMedicNotes || null,
-          listMedicFiles: profileData.listMedicFiles || null,
-          listMedicsIds: profileData.listMedicsIds || null,
-          graphId: profileData.graphId || null,
-          subscriptionId: profileData.subscriptionId || null,
-        });
-        await sportsmanRepo.save(profile);
-        break;
+    await freeRepo.save(freeRepo.create({ user: savedUser }));
 
-      case ProfileCategory.COACH:
-        profile = coachRepo.create({
-          user: savedUser,
-          sportCategories: profileData.sportCategories || null,
-          canImportSessions: profileData.canImportSessions || false,
-        });
-        await coachRepo.save(profile);
-        break;
-
-      case ProfileCategory.MEDIC:
-        profile = medicRepo.create({
-          user: savedUser,
-          sportCategories: profileData.sportCategories || null,
-          canImportSessions: profileData.canImportSessions || false,
-        });
-        await medicRepo.save(profile);
-        break;
-
-      case ProfileCategory.FREE:
-        profile = freeRepo.create({
-          user: savedUser,
-        });
-        await freeRepo.save(profile);
-        break;
-
-      case ProfileCategory.PARTNER:
-        profile = partnerRepo.create({
-          user: savedUser,
-          companyId: profileData.companyId || null,
-        });
-        await partnerRepo.save(profile);
-        break;
-
-      case ProfileCategory.ADMIN:
-        profile = adminRepo.create({
-          user: savedUser,
-        });
-        await adminRepo.save(profile);
-        break;
-
-      default:
-        break;
-    }
     const { password: _, ...userSafe } = savedUser;
     const token = generateToken(savedUser.id, savedUser.profileCategory);
 
     await sendMail(
       email,
-      "HYPERION - Bienvenue 🎉",
+      `${config.appName} - Bienvenue`,
       `<h1 style="color: #1E3A8A">Merci pour votre inscription !</h1><p>Votre compte a bien été créé 🎉</p>`
     );
     res.status(201).json({ message: "User registered", user: userSafe, token });
@@ -235,7 +183,11 @@ export const changePassword = async (
     }
 
     const userRepo = AppDataSource.getRepository(User);
-    const user = await userRepo.findOne({ where: { id: userId } });
+    const user = await userRepo
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .where("user.id = :id", { id: userId })
+      .getOne();
 
     if (!user) {
       res.status(404).json({ message: "Utilisateur non trouvé" });
@@ -284,11 +236,11 @@ export const forgotPassword = async (
     const token = generateResetToken(user.id.toString());
 
     // Lien de reset → ton front va le gérer
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetLink = `${config.frontendUrl}/reset-password?token=${token}`;
 
     await sendMail(
       email,
-      "HYPERION - Réinitialisation de votre mot de passe",
+      `${config.appName} - Réinitialisation de votre mot de passe`,
       `
         <h1 style="color: #1E3A8A">Réinitialisation du mot de passe</h1>
         <p>Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe :</p>

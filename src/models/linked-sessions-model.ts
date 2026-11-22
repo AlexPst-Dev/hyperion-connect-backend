@@ -6,14 +6,14 @@ import {
   JoinColumn,
 } from "typeorm";
 import { Sessions } from "./sessions-model";
-import { Sportsman, User } from "./users-model";
+import { User } from "./users-model";
 
 @Entity("linked_sessions")
 export class LinkedSessions {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Sportsman, (sportsman) => sportsman.id)
+  @ManyToOne(() => User)
   @JoinColumn({ name: "user_id" })
   user: User;
 

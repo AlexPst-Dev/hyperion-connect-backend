@@ -10,7 +10,7 @@ import { authenticateToken, requireSelf } from "../middleware/auth.middleware";
 const router = Router();
 
 // Contact routes
-// Public
+// Signed-in users only (guard applied in server.ts)
 router.post("/", createContactList);
 router.get("/:userId", getContactListByUserId);
 router.delete("/:userId", clearContactListByUserId);
